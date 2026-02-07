@@ -1,0 +1,341 @@
+:host {
+    display: block;
+    min-height: 100vh;
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    position: relative;
+}
+
+:host::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(92, 64, 51, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(92, 64, 51, 0.03) 1px, transparent 1px);
+    background-size: 28px 28px;
+    pointer-events: none;
+    z-index: 0;
+}
+
+.mentor-requests-container {
+    display: flex;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+    gap: 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+.sidebar-info {
+    width: 300px;
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 1.5rem;
+    height: fit-content;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--card-shadow);
+    position: sticky;
+    top: 2rem;
+}
+
+.sidebar-header {
+    margin-bottom: 2.5rem;
+}
+
+.back-link {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    transition: color 0.2s;
+}
+
+.back-link:hover {
+    color: var(--mentor-primary);
+}
+
+.sidebar-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem;
+    background: var(--bg-primary);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+}
+
+.stat-item:hover {
+    border-color: var(--border-color);
+    transform: translateX(4px);
+}
+
+.stat-item.active {
+    background: var(--bg-secondary);
+    border-color: var(--mentor-primary);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.1);
+}
+
+.stat-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.stat-icon.pending {
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--mentor-primary);
+}
+
+.stat-icon.history {
+    background: rgba(100, 116, 139, 0.1);
+    color: #64748b;
+}
+
+.stat-details .label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.stat-details .value {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.requests-main {
+    flex: 1;
+}
+
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.main-header h1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    margin: 0;
+}
+
+.search-mini {
+    position: relative;
+    width: 300px;
+}
+
+.search-mini i {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.search-mini input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.5rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-primary);
+}
+
+.request-card {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.request-card:hover {
+    border-color: var(--mentor-primary);
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.3);
+}
+
+.card-body {
+    padding: 1.75rem;
+}
+
+.student-info {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.avatar {
+    width: 60px;
+    height: 60px;
+    border-radius: 15px;
+    background: var(--bg-primary);
+}
+
+.info-text h3 {
+    margin: 0 0 0.4rem 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.match-pill {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.info-text h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+}
+
+.domain-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    background: var(--accent-subtle);
+    color: var(--accent-primary);
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 0.25rem;
+}
+
+.project-details {
+    padding: 1.25rem;
+    background: var(--bg-primary);
+}
+
+.project-title {
+    margin: 0 0 1rem 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--mentor-primary);
+}
+
+.guidance-section p {
+    margin: 0.5rem 0 0 0;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.guidance-section .label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
+.card-footer {
+    padding: 1.25rem 1.75rem;
+    background: rgba(0, 0, 0, 0.05);
+    display: flex;
+    gap: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+.btn {
+    padding: 0.75rem 1.5rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: all 0.2s;
+}
+
+.btn-accept {
+    background: var(--mentor-primary);
+    color: white;
+}
+
+.btn-decline {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.btn-message {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.status-badge.accepted {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.status-badge.declined {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.status-footer {
+    justify-content: space-between;
+    align-items: center;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: var(--text-secondary);
+    opacity: 0.5;
+}
+
+.empty-state i {
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 992px) {
+    .mentor-requests-container {
+        flex-direction: column;
+    }
+
+    .sidebar-info {
+        width: 100%;
+        position: static;
+    }
+}

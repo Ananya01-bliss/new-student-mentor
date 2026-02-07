@@ -1,0 +1,112 @@
+<div class="find-mentor-container">
+    <aside class="filters-sidebar">
+        <div class="sidebar-header">
+            <a routerLink="/student/dashboard" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <h2>Filters</h2>
+        </div>
+
+        <div class="filter-section">
+            <h3>Expertise</h3>
+            <div class="expertise-list">
+                <label *ngFor="let exp of expertises" class="checkbox-container">
+                    <input type="checkbox" (change)="toggleExpertise(exp)">
+                    <span class="checkmark"></span>
+                    {{ exp }}
+                </label>
+            </div>
+        </div>
+
+        <div class="filter-section border-top">
+            <h3>Experience</h3>
+            <div class="experience-list">
+                <label *ngFor="let level of experienceLevels" class="checkbox-container">
+                    <input type="checkbox">
+                    <span class="checkmark"></span>
+                    {{ level }}
+                </label>
+            </div>
+        </div>
+
+        <div class="filter-section border-top">
+            <h3>Availability</h3>
+            <label class="toggle-container">
+                <input type="checkbox">
+                <span class="toggle-slider"></span>
+                Available Now
+            </label>
+        </div>
+    </aside>
+
+    <main class="mentor-content">
+        <header class="content-header">
+            <div class="search-bar-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" placeholder="Search by name, expertise, or keyword..." [(ngModel)]="searchQuery"
+                    (input)="filterMentors()">
+            </div>
+        </header>
+
+        <div class="mentors-grid">
+            <div *ngFor="let mentor of filteredMentors" class="mentor-card">
+                <div class="mentor-header">
+                    <img [src]="'https://ui-avatars.com/api/?name=' + mentor.name" [alt]="mentor.name"
+                        class="mentor-avatar">
+                    <div class="mentor-badge" [class.available]="true">Available</div>
+                </div>
+                <div class="mentor-info">
+                    <h3>{{ mentor.name }}</h3>
+                    <p class="role">{{ mentor.summary || 'Senior Mentor' }}</p>
+                    <div class="expertise-tags">
+                        <span *ngFor="let tech of mentor.expertise" class="tag">{{ tech }}</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-request" (click)="openRequestModal(mentor)">Request Mentorship</button>
+                        <button class="btn-connect-icon" (click)="connectMentor(mentor)" title="Chat">
+                            <i class="fas fa-comment"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div *ngIf="filteredMentors.length === 0" class="no-results">
+            <i class="fas fa-search"></i>
+            <p>No mentors found matching your criteria.</p>
+        </div>
+    </main>
+
+    <!-- Request Mentorship Modal -->
+    <div class="modal-overlay" *ngIf="showRequestModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Request Mentorship from {{ selectedMentor?.name }}</h2>
+                <button class="btn-close" (click)="closeRequestModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Project Title</label>
+                    <input type="text" [(ngModel)]="requestData.title" placeholder="Enter your project title" required>
+                </div>
+                <div class="form-group">
+                    <label>Project Idea/Summary</label>
+                    <textarea [(ngModel)]="requestData.idea" placeholder="Describe your project idea..." rows="4"
+                        required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Guidance Needed</label>
+                    <textarea [(ngModel)]="requestData.guidanceNeeded"
+                        placeholder="What specific help do you need from this mentor?" rows="3"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" (click)="closeRequestModal()">Cancel</button>
+                <button class="btn-primary" (click)="sendRequest()"
+                    [disabled]="!requestData.title || !requestData.idea || isSending">
+                    {{ isSending ? 'Sending...' : 'Send Request' }}
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,38 @@
+<div class="login-container">
+    <div class="form-section">
+        <div class="form-wrapper">
+            <a routerLink="/" class="back-link">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <h1>Student Login</h1>
+            <p class="subtitle">Welcome back! Please login to your account.</p>
+
+            <div *ngIf="errorMessage" class="error-alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                {{ errorMessage }}
+            </div>
+
+            <form (submit)="onLogin($event)">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" [(ngModel)]="loginData.email"
+                        placeholder="Enter your email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" [(ngModel)]="loginData.password"
+                        placeholder="Enter your password" required>
+                </div>
+
+                <button type="submit" class="continue-btn">Continue</button>
+            </form>
+        </div>
+    </div>
+    <div class="info-section">
+        <div class="info-content">
+            <h2>Student Portal</h2>
+            <p>Access your courses, track progress, and connect with mentors</p>
+        </div>
+    </div>
+</div>

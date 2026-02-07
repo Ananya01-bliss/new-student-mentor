@@ -1,0 +1,178 @@
+<div class="project-container">
+    <div class="header">
+        <a routerLink="/student/dashboard" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <h1>Project Details</h1>
+    </div>
+
+    <div class="project-grid">
+        <div class="main-content">
+            <div class="project-card">
+                <div *ngIf="successMessage" class="success-alert">
+                    <i class="fas fa-check-circle"></i>
+                    {{ successMessage }}
+                </div>
+                <div *ngIf="errorMessage" class="error-alert">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    {{ errorMessage }}
+                </div>
+                <div *ngIf="status === 'rejected'" class="error-alert rejection-banner">
+                    <i class="fas fa-times-circle"></i>
+                    <div>
+                        <strong>Request Rejected by {{ mentorName }}</strong>
+                        <p>The mentor has declined your request for this project. You can update your details and try
+                            another mentor.</p>
+                    </div>
+                </div>
+
+                <form (submit)="$event.preventDefault()">
+                    <div class="form-group">
+                        <label for="project-title">Project Title</label>
+                        <input type="text" id="project-title" name="projectTitle" [(ngModel)]="projectTitle"
+                            placeholder="Enter project title">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="about-project">About Project</label>
+                        <textarea id="about-project" name="aboutProject" [(ngModel)]="aboutProject"
+                            placeholder="Write about your project" rows="8"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="project-keywords">Project Keywords (comma-separated)</label>
+                        <input type="text" id="project-keywords" name="projectKeywords" [(ngModel)]="projectKeywords"
+                            (ngModelChange)="onKeywordsChange()"
+                            placeholder="e.g. Java, Python, Web Development (Use commas to separate)">
+                    </div>
+
+                    <div class="button-group">
+                        <button type="button" class="save-btn" (click)="onSave()" *ngIf="!projectId">Save
+                            Project</button>
+                        <button type="button" class="update-btn" (click)="onUpdate()" *ngIf="projectId">Update
+                            Details</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="sidebar" *ngIf="projectId">
+            <!-- Progress Section (Relocated to Sidebar) -->
+            <div class="project-header-info sidebar-progress" *ngIf="projectId">
+                <div class="progress-container">
+                    <div class="progress-stats">
+                        <h3>Overall Progress</h3>
+                        <span class="progress-percentage">{{ progress }}%</span>
+                    </div>
+                    <app-progress-bar [progress]="progress" height="8px"></app-progress-bar>
+                </div>
+            </div>
+
+            <!-- Project Milestones Section -->
+            <div class="milestones-card" *ngIf="projectId">
+                <div class="milestone-header">
+                    <h3>Project Milestones</h3>
+                    <span class="milestone-count" *ngIf="milestones">{{ milestones.length }} Total</span>
+                </div>
+                <div class="milestone-list">
+                    <div *ngIf="!milestones || milestones.length === 0" class="empty-milestones">
+                        <p>No milestones added yet by your mentor.</p>
+                    </div>
+                    <div *ngFor="let m of milestones" class="milestone-item" [ngClass]="m.status">
+                        <div class="m-info">
+                            <h4>{{ m.title }}</h4>
+                            <p class="m-desc">{{ m.description }}</p>
+                            <div class="m-meta">
+                                <span class="m-date" *ngIf="m.dueDate">
+                                    <i class="far fa-calendar"></i> {{ m.dueDate | date:'mediumDate' }}
+                                </span>
+                                <span class="m-status">{{ m.status | titlecase }}</span>
+                            </div>
+                        </div>
+                        <div class="m-action" *ngIf="m.status === 'pending'">
+                            <button class="submit-btn-sm" (click)="openSubmitModal(m)">Submit</button>
+                        </div>
+                        <div class="m-action" *ngIf="m.status === 'submitted'">
+                            <span class="submitted-badge">Under Review</span>
+                            <button class="cancel-btn-sm" (click)="cancelSubmissionRequest(m)">Cancel</button>
+                        </div>
+                        <div class="m-action" *ngIf="m.status === 'completed'">
+                            <span class="completed-msg"><i class="fas fa-check"></i> Approved</span>
+                        </div>
+                        <div class="m-feedback" *ngIf="m.feedback">
+                            <p><strong>Feedback:</strong> {{ m.feedback }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Suggested Mentors Section (Shown only for New Projects) -->
+            <div class="suggestions-card" *ngIf="!projectId && suggestedMentors && suggestedMentors.length > 0">
+                <div class="suggestion-header">
+                    <h3>Suggested Mentors</h3>
+                    <span class="match-hint">Based on your keywords</span>
+                </div>
+                <div class="suggestion-list">
+                    <div *ngFor="let mentor of suggestedMentors" class="suggestion-item">
+                        <div class="mentor-brief">
+                            <img [src]="'https://ui-avatars.com/api/?name=' + mentor.name" class="mini-avatar">
+                            <div class="mentor-meta">
+                                <h4>{{ mentor.name }}</h4>
+                                <div class="match-badge">
+                                    <i class="fas fa-magic"></i> {{ mentor.matchScore }} matches
+                                </div>
+                            </div>
+                        </div>
+                        <div class="expertise-tags">
+                            <span *ngFor="let exp of mentor.expertise.slice(0, 3)" class="tag">{{ exp }}</span>
+                        </div>
+                        <p class="mentor-hint">Save project to apply</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Submission Modal -->
+<div class="modal-overlay" *ngIf="showSubmitModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Submit Milestone</h2>
+            <button class="close-btn" (click)="closeSubmitModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <h3>{{ selectedMilestone?.title }}</h3>
+            <p>{{ selectedMilestone?.description }}</p>
+
+            <div class="submission-tabs">
+                <button [class.active]="submissionType === 'text'" (click)="submissionType = 'text'">Text
+                    Description</button>
+                <button [class.active]="submissionType === 'file'" (click)="submissionType = 'file'">Upload
+                    File</button>
+            </div>
+
+            <div *ngIf="submissionType === 'text'" class="form-group">
+                <label>Submission Details</label>
+                <textarea [(ngModel)]="submissionText" placeholder="Describe your work for this milestone..."
+                    rows="5"></textarea>
+            </div>
+
+            <div *ngIf="submissionType === 'file'" class="form-group">
+                <label>Attach File (PDF, Images, etc.)</label>
+                <input type="file" (change)="onFileSelected($event)" class="file-input">
+                <p class="file-hint">Max size: 5MB</p>
+                <div *ngIf="selectedFile" class="selected-file">
+                    <i class="fas fa-file"></i> {{ selectedFile.name }}
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeSubmitModal()">Cancel</button>
+            <button class="btn-primary" (click)="submitMilestone()"
+                [disabled]="submitting || (submissionType === 'text' && !submissionText) || (submissionType === 'file' && !selectedFile)">
+                {{ submitting ? 'Submitting...' : 'Submit Now' }}
+            </button>
+        </div>
+    </div>
+</div>

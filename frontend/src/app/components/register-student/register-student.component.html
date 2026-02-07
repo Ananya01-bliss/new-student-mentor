@@ -1,0 +1,76 @@
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="card-header">
+            <a routerLink="/" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+            </a>
+            <h2>Student Registration</h2>
+        </div>
+        <p class="subtitle">Join as a student to find mentors.</p>
+
+        <div *ngIf="errorMessage" class="alert alert-error">
+            {{ errorMessage }}
+        </div>
+        <div *ngIf="successMessage" class="alert alert-success">
+            {{ successMessage }}
+        </div>
+
+        <form (submit)="onRegister($event)">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" [(ngModel)]="registerData.name" placeholder="John Doe"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" [(ngModel)]="registerData.email"
+                    placeholder="john@university.edu" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" [(ngModel)]="registerData.password"
+                    placeholder="Create a password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="course">Course/Major</label>
+                <input type="text" id="course" name="domain" [(ngModel)]="registerData.domain"
+                    placeholder="Computer Science" required>
+            </div>
+
+            <div class="form-group">
+                <label for="usn">USN</label>
+                <input type="text" id="usn" name="usn" [(ngModel)]="registerData.usn" placeholder="1MS20CS001" required>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="degree">Degree Level</label>
+                    <select id="degree" name="specialization" [(ngModel)]="registerData.specialization"
+                        (change)="onDegreeChange($event)" required>
+                        <option value="UG">Undergraduate (UG)</option>
+                        <option value="PG">Postgraduate (PG)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="year">Year of Degree</label>
+                    <select id="year" name="year" [(ngModel)]="registerData.year" required>
+                        <option *ngFor="let y of availableYears" [value]="y">{{y}}{{y === 1 ? 'st' : y === 2 ? 'nd' : y
+                            === 3 ? 'rd' : 'th'}} Year</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn-primary">Create Account</button>
+            </div>
+
+            <p class="footer-text">
+                Already have an account?
+                <a routerLink="/login/student">Sign In</a>
+            </p>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,43 @@
+<div class="landing-container">
+    <header class="content-center">
+        <h1>Project Pilot</h1>
+        <p class="subtitle">
+            Connect students with experienced mentors to guide and support their academic projects.
+            Get expert guidance and bring your project ideas to life.
+        </p>
+    </header>
+
+    <div class="theme-footer">
+        <app-theme-switcher></app-theme-switcher>
+    </div>
+
+    <div class="cards-container">
+        <!-- Student Card -->
+        <div class="card student-card">
+            <div class="icon-wrapper student-icon">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h2>Student</h2>
+            <p>
+                Register as a student to find mentors for your projects, get guidance,
+                and collaborate on innovative ideas.
+            </p>
+            <button class="btn btn-dark" routerLink="/register/student">Register as Student</button>
+            <button class="btn btn-outline" routerLink="/login/student">Student Login</button>
+        </div>
+
+        <!-- Mentor Card -->
+        <div class="card mentor-card">
+            <div class="icon-wrapper mentor-icon">
+                <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+            <h2>Mentor</h2>
+            <p>
+                Register as a mentor to share your expertise, guide students,
+                and help shape the next generation of innovators.
+            </p>
+            <button class="btn btn-primary" routerLink="/register/mentor">Register as Mentor</button>
+            <button class="btn btn-outline" routerLink="/login/mentor">Mentor Login</button>
+        </div>
+    </div>
+</div>

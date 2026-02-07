@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Flow Diagrams</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            securityLevel: 'loose',
+            flowchart: { curve: 'basis' }
+        });
+    </script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px;
+        }
+
+        .container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 40px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 40px;
+        }
+
+        h2 {
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            color: #2c3e50;
+            margin-top: 0;
+        }
+
+        .diagram-box {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>Project Flow Diagrams</h1>
+    <p style="text-align: center; color: #666;">Right-click on any diagram to check if you can "Save image as..."
+        depending on your browser, or purely use the Screenshot tool.</p>
+
+    <div class="container">
+        <h2>1. Methodology (System Architecture)</h2>
+        <div class="mermaid diagram-box">
+            graph TD
+            subgraph Client_Side ["💻 Client Side"]
+            UI[User Interface (Angular)]
+            Auth[Authentication Module]
+            StudentDash[Student Dashboard]
+            MentorDash[Mentor Dashboard]
+            end
+
+            subgraph Server_Side ["🚀 Server Side"]
+            API[REST API (Express.js)]
+            Socket[Socket.io Server]
+            AuthLogic[Auth Middleware]
+            Controllers[Business Logic/Controllers]
+            end
+
+            subgraph Database_Layer ["🗄️ Database Layer"]
+            MongoDB[(MongoDB Atlas)]
+            end
+
+            UI --> |HTTP Requests| API
+            UI --> |Real-time Events| Socket
+            API --> AuthLogic
+            AuthLogic --> Controllers
+            Controllers --> |Query/Update| MongoDB
+            Socket --> |Message Store| MongoDB
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>2. Student Workflow</h2>
+        <div class="mermaid diagram-box">
+            flowchart TD
+            Start([Start]) --> Login{Login/Register}
+            Login --> |Success| Dashboard[Student Dashboard]
+
+            Dashboard --> CreateNew[Create New Project]
+            CreateNew --> FillDetails[Fill Project Details]
+            FillDetails --> SubmitProj[Submit Project]
+
+            Dashboard --> ViewStatus[View Project Status]
+
+            Dashboard --> NeedHelp{Need Guidance?}
+            NeedHelp --> |Yes| BrowseMentors[Browse Mentors]
+            BrowseMentors --> SelectMentor[Select Mentor]
+            SelectMentor --> SendReq[Send Mentorship Request]
+
+            SendReq --> Wait[Wait for Acceptance]
+            Wait --> |Accepted| Chat[Chat & Collaboration]
+            Wait --> |Rejected| BrowseMentors
+
+            Chat --> Upload[Upload Milestones]
+            Upload --> Review[Get Review]
+            Review --> End([End/Complete])
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>3. Mentor Workflow</h2>
+        <div class="mermaid diagram-box">
+            flowchart TD
+            Start([Start]) --> Login(Login as Mentor)
+            Login --> Dashboard[Mentor Dashboard]
+
+            Dashboard --> CheckReq{New Requests?}
+            CheckReq --> |Yes| ReviewReq[Review Student Request]
+            ReviewReq --> Decision{Accept?}
+
+            Decision --> |No| Reject[Reject Request]
+            Decision --> |Yes| Accept[Accept & Assign]
+
+            Dashboard --> ViewProjects[View My Mentees]
+            ViewProjects --> SelectMentee[Select Mentee Project]
+
+            SelectMentee --> Actions{Actions}
+            Actions --> |Chat| Msg[Send Message/Advice]
+            Actions --> |Review| CheckWork[Review Uploaded Files]
+
+            CheckWork --> Feedback[Provide Feedback]
+            Feedback --> Approve[Approve Milestone]
+
+            Msg --> SelectMentee
+            Approve --> Dashboard
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>4. Backend Logic Flow</h2>
+        <div class="mermaid diagram-box">
+            sequenceDiagram
+            participant User as 👤 FrontEnd
+            participant Route as 🚦 API Route
+            participant Auth as 🛡️ Auth Middleware
+            participant Ctrl as ⚙️ Controller
+            participant DB as 🗄️ MongoDB
+
+            User->>Route: POST /api/project/create
+            Route->>Auth: Verify Token
+
+            alt Token Invalid
+            Auth-->>User: 401 Unauthorized
+            else Token Valid
+            Auth->>Ctrl: Pass Request
+            Ctrl->>DB: Validate Data
+
+            alt Data Invalid
+            Ctrl-->>User: 400 Bad Request
+            else Data Valid
+            Ctrl->>DB: Save New Project
+            DB-->>Ctrl: Success + ProjectID
+            Ctrl-->>User: 201 Created
+            end
+            end
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>5. Frontend Logic Flow</h2>
+        <div class="mermaid diagram-box">
+            sequenceDiagram
+            participant User as 👤 User
+            participant View as 🖥️ HTML View
+            participant Comp as 🧩 Component
+            participant Serv as 🔧 Service
+            participant API as ☁️ Backend API
+
+            User->>View: Clicks Button (e.g., "Submit")
+            View->>Comp: Trigger Function (onSubmit())
+            Comp->>Comp: Validate Form Input
+
+            alt Input Invalid
+            Comp-->>View: Show Error Message
+            else Input Valid
+            Comp->>Serv: Call Service Method (createProject())
+            Serv->>API: HTTP POST Request
+            API-->>Serv: Return Observable (Response)
+            Serv-->>Comp: Return Observable
+            Comp->>Comp: Subscribe & Handle Data
+            Comp-->>View: Update UI / Show Success Alert
+            end
+        </div>
+    </div>
+
+</body>
+
+</html>

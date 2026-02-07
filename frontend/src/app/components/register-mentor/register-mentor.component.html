@@ -1,0 +1,75 @@
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="card-header">
+            <a routerLink="/" class="back-link">
+                <i class="fas fa-arrow-left"></i>
+                <span>Back</span>
+            </a>
+            <h2>Mentor Registration</h2>
+            <p class="subtitle">Create your mentor profile</p>
+        </div>
+
+        <div *ngIf="errorMessage" class="alert alert-error">
+            {{ errorMessage }}
+        </div>
+        <div *ngIf="successMessage" class="alert alert-success">
+            {{ successMessage }}
+        </div>
+
+        <form (submit)="onRegister($event)">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" [(ngModel)]="registerData.name"
+                    placeholder="Enter your full name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email ID</label>
+                <input type="email" id="email" name="email" [(ngModel)]="registerData.email"
+                    placeholder="your.email@example.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" [(ngModel)]="registerData.password"
+                    placeholder="Enter password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="rePassword">Re-enter Password</label>
+                <input type="password" id="rePassword" name="rePassword" [(ngModel)]="registerData.rePassword"
+                    placeholder="Re-enter password" required>
+            </div>
+
+            <div class="form-group">
+                <label for="maxStudents">Maximun Student Intake</label>
+                <input type="number" id="maxStudents" name="maxStudents" [(ngModel)]="registerData.maxStudents"
+                    placeholder="e.g., 5" required>
+            </div>
+
+            <div class="form-group">
+                <label for="expertise">Subject Expertise</label>
+                <input type="text" id="expertise" name="expertise" [(ngModel)]="registerData.expertise"
+                    placeholder="e.g. Java, Python, Angular" required>
+            </div>
+
+            <div class="form-group">
+                <label for="shortDescription">Short Description (max 200 words)</label>
+                <textarea id="shortDescription" name="shortDescription" [(ngModel)]="registerData.shortDescription"
+                    placeholder="Describe your mentorship style and experience..." rows="4" required></textarea>
+                <div class="word-count" [class.error]="wordCount > 200">
+                    Words: {{ wordCount }} / 200
+                </div>
+            </div>
+
+            <div class="actions">
+                <button type="submit" class="btn-primary">Create Profile</button>
+            </div>
+
+            <p class="footer-text">
+                Already have an account?
+                <a routerLink="/login/mentor" class="login-link">Login here</a>
+            </p>
+        </form>
+    </div>
+</div>

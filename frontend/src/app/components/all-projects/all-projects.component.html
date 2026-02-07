@@ -1,0 +1,62 @@
+<div class="all-projects-container">
+    <div class="header">
+        <a routerLink="/student/dashboard" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <div class="header-actions">
+            <h1>All Projects</h1>
+            <button class="create-btn" (click)="createNew()">
+                <i class="fas fa-plus"></i> New Project
+            </button>
+        </div>
+    </div>
+
+    <div *ngIf="loading" class="loading-state">
+        <p>Loading projects...</p>
+    </div>
+
+    <div *ngIf="error" class="error-state">
+        <p>{{ error }}</p>
+    </div>
+
+    <div *ngIf="!loading && projects.length === 0" class="empty-state">
+        <i class="fas fa-folder-open"></i>
+        <p>You haven't created any projects yet.</p>
+        <button class="create-btn" (click)="createNew()">Create Your First Project</button>
+    </div>
+
+    <div class="projects-grid" *ngIf="!loading && projects.length > 0">
+        <div class="project-card" *ngFor="let project of projects" (click)="viewProject(project._id)">
+            <div class="card-header">
+                <h3>{{ project.title }}</h3>
+                <button class="delete-btn" (click)="onDelete(project._id, $event)" title="Delete Project">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+
+            <p class="description">{{ project.idea || 'No description provided.' }}</p>
+
+            <div class="progress-section">
+                <div class="progress-label">
+                    <span>Progress</span>
+                    <span>{{ project.progress || 0 }}%</span>
+                </div>
+                <app-progress-bar [progress]="project.progress || 0" height="6px"
+                    [showLabel]="false"></app-progress-bar>
+            </div>
+
+            <div class="card-footer">
+                <span class="status-badge" [ngClass]="project.status || 'pending'">
+                    {{ (project.status || 'In Progress') | titlecase }}
+                </span>
+                <span class="milestone-count">
+                    <i class="fas fa-flag"></i> {{ project.milestones?.length || 0 }} Milestones
+                </span>
+            </div>
+
+            <div class="hover-action">
+                <span>View Details <i class="fas fa-arrow-right"></i></span>
+            </div>
+        </div>
+    </div>
+</div>

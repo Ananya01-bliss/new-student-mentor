@@ -1,0 +1,94 @@
+<div class="mentor-requests-container">
+    <aside class="sidebar-info">
+        <div class="sidebar-header">
+            <a routerLink="/mentor/dashboard" class="back-link">
+                <i class="fas fa-arrow-left"></i> Dashboard
+            </a>
+            <h2>Requests</h2>
+        </div>
+
+        <div class="stats-list">
+            <div class="stat-item" [class.active]="activeTab === 'pending'" (click)="setTab('pending')">
+                <div class="stat-icon pending">
+                    <i class="far fa-file-alt"></i>
+                </div>
+                <div class="stat-details">
+                    <span class="label">Pending</span>
+                    <span class="value">{{ requests.length }}</span>
+                </div>
+            </div>
+
+            <div class="stat-item" [class.active]="activeTab === 'history'" (click)="setTab('history')">
+                <div class="stat-icon history">
+                    <i class="fas fa-history"></i>
+                </div>
+                <div class="stat-details">
+                    <span class="label">History</span>
+                    <span class="value">{{ historyRequests.length }}</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="requests-main">
+        <header class="main-header">
+            <h1>{{ activeTab === 'pending' ? 'Pending Mentorship Requests' : 'Mentorship History' }}</h1>
+            <div class="header-actions">
+                <div class="search-mini">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search requests...">
+                </div>
+            </div>
+        </header>
+
+        <section class="requests-list">
+            <div *ngFor="let req of filteredRequests" class="request-card glass">
+                <div class="card-body">
+                    <div class="student-info">
+                        <img [src]="'https://ui-avatars.com/api/?name=' + req.student?.name" [alt]="req.student?.name"
+                            class="avatar">
+                        <div class="info-text">
+                            <h3>{{ req.student?.name }}</h3>
+                            <div class="domain-badge">
+                                {{ req.student?.domain }}
+                            </div>
+                        </div>
+                        <div class="timestamp">{{ req.createdAt | date:'short' }}</div>
+                    </div>
+
+                    <div class="project-details">
+                        <h4 class="project-title">{{ req.title }}</h4>
+                        <div class="guidance-section">
+                            <span class="label">Guidance Needed:</span>
+                            <p>{{ req.guidanceNeeded }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer" *ngIf="req.status === 'pending'">
+                    <button class="btn btn-accept" (click)="acceptRequest(req)">
+                        <i class="fas fa-check"></i> Accept
+                    </button>
+                    <button class="btn btn-decline" (click)="declineRequest(req)">
+                        <i class="fas fa-times"></i> Decline
+                    </button>
+                    <button class="btn btn-message" (click)="sendMessage(req)">
+                        <i class="far fa-envelope"></i> Send Message
+                    </button>
+                </div>
+
+                <div class="card-footer status-footer" *ngIf="req.status !== 'pending'">
+                    <span class="status-badge" [class]="req.status">{{ req.status | titlecase }}</span>
+                    <button class="btn btn-message" (click)="sendMessage(req)">
+                        <i class="far fa-envelope"></i> Message Student
+                    </button>
+                </div>
+            </div>
+
+            <div *ngIf="filteredRequests.length === 0" class="empty-state">
+                <i class="fas fa-inbox"></i>
+                <p>No requests found in this section.</p>
+            </div>
+        </section>
+    </main>
+</div>

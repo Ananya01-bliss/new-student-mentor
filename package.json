@@ -1,0 +1,19 @@
+{
+  "name": "mentor-student-app",
+  "version": "1.0.0",
+  "description": "Mentor Student App with MEAN Stack and Electron",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "backend": "cd backend && npm start",
+    "frontend": "cd frontend && npm start",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\" \"npm run start\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "electron": "^28.0.0"
+  }
+}

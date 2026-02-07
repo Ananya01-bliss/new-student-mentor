@@ -1,0 +1,71 @@
+<div class="chat-wrapper">
+    <!-- Sidebar -->
+    <aside class="chat-sidebar">
+        <div class="sidebar-header">
+            <div class="header-content">
+                <button (click)="goBack()" class="btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <h2>Project Pilot Chat</h2>
+            </div>
+        </div>
+        <div class="contacts-list">
+            <div *ngFor="let contact of contacts" class="contact-item"
+                [class.active]="selectedContact?._id === contact._id" [class.unread]="contact.unreadCount > 0"
+                (click)="selectContact(contact)">
+                <img [src]="'https://ui-avatars.com/api/?name=' + contact.name" [alt]="contact.name" class="avatar">
+                <div class="contact-info">
+                    <div class="contact-header">
+                        <span class="name">{{ contact.name }}</span>
+                        <div class="header-right">
+                            <span class="time" *ngIf="contact.lastMessageTime">{{ contact.lastMessageTime |
+                                date:'shortTime' }}</span>
+                        </div>
+                    </div>
+                    <div class="message-meta">
+                        <div class="last-message" *ngIf="contact.lastMessage">
+                            {{ contact.lastMessage }}
+                        </div>
+                        <span class="role" *ngIf="!contact.lastMessage">{{ contact.role }}</span>
+                        <span class="unread-badge" *ngIf="contact.unreadCount > 0">
+                            {{ contact.unreadCount }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Chat Area -->
+    <main class="chat-main">
+        <header class="chat-header">
+            <div class="active-contact" *ngIf="selectedContact">
+                <img [src]="'https://ui-avatars.com/api/?name=' + selectedContact.name" [alt]="selectedContact.name"
+                    class="avatar">
+                <div>
+                    <h3>{{ selectedContact.name }}</h3>
+                    <span class="status">Online</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="messages-container" #scrollContainer>
+            <div *ngFor="let msg of messages" class="message-bubble" [class.me]="isMe(msg)" [class.other]="!isMe(msg)">
+                <div class="message-content">
+                    <p>{{ msg.content }}</p>
+                    <span class="timestamp">{{ msg.timestamp | date:'shortTime' }}</span>
+                </div>
+            </div>
+        </section>
+
+        <footer class="chat-footer">
+            <form (submit)="sendMessage(); $event.preventDefault()">
+                <input type="text" placeholder="Type a message..." [(ngModel)]="newMessage" name="messageInput"
+                    autocomplete="off">
+                <button type="submit" [disabled]="!newMessage.trim()">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </footer>
+    </main>
+</div>

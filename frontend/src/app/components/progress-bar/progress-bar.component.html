@@ -1,0 +1,33 @@
+<div class="progress-wrapper">
+  <div class="circular-progress" [style.width.px]="size" [style.height.px]="size">
+    <svg [attr.width]="size" [attr.height]="size" viewBox="0 0 150 150">
+      <defs>
+        <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#4361ee;stop-opacity:1" />
+          <stop offset="100%" style="stop-color:#20e2d7;stop-opacity:1" />
+        </linearGradient>
+      </defs>
+      <!-- Background track -->
+      <circle class="bg" cx="75" cy="75" r="65" stroke-width="12" fill="none" />
+
+      <!-- Progress segments if milestones available -->
+      <ng-container *ngIf="milestones && milestones.length > 0; else simpleProgress">
+        <circle *ngFor="let seg of getSegments(); let i = index" [attr.cx]="75" [attr.cy]="75" [attr.r]="65"
+          stroke-width="12" fill="none" [attr.stroke]="seg.color"
+          [attr.stroke-dasharray]="getStrokeDashArray(seg.size - 2)"
+          [attr.transform]="'rotate(' + (seg.start * 3.6 - 90) + ' 75 75)'" class="segment" />
+      </ng-container>
+
+      <!-- Fallback simple progress -->
+      <ng-template #simpleProgress>
+        <circle class="fill" cx="75" cy="75" r="65" stroke-width="12" fill="none"
+          [attr.stroke-dasharray]="getStrokeDashArray(progress)" transform="rotate(-90 75 75)" />
+      </ng-template>
+    </svg>
+
+    <div class="inner-content">
+      <span class="percentage">{{ progress }}%</span>
+      <span class="label" *ngIf="showLabel">Progress</span>
+    </div>
+  </div>
+</div>

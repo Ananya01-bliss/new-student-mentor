@@ -1,0 +1,30 @@
+import { Routes } from '@angular/router';
+import { LandingComponent } from './components/landing/landing.component';
+import { StudentLoginComponent } from './components/student-login/student-login.component';
+import { MentorLoginComponent } from './components/mentor-login/mentor-login.component';
+import { RegisterStudentComponent } from './components/register-student/register-student.component';
+import { RegisterMentorComponent } from './components/register-mentor/register-mentor.component';
+import { StudentDashboardComponent } from './components/student-dashboard/student-dashboard.component';
+import { MentorDashboardComponent } from './components/mentor-dashboard/mentor-dashboard.component';
+import { StudentProjectsComponent } from './components/student-projects/student-projects.component';
+import { MentorMenteesComponent } from './components/mentor-mentees/mentor-mentees.component';
+import { ChatComponent } from './components/chat/chat.component';
+import { FindMentorComponent } from './components/find-mentor/find-mentor.component';
+import { MentorRequestsComponent } from './components/mentor-requests/mentor-requests.component';
+import { AllProjectsComponent } from './components/all-projects/all-projects.component';
+
+export const routes: Routes = [
+    { path: '', component: LandingComponent },
+    { path: 'login/student', component: StudentLoginComponent },
+    { path: 'login/mentor', component: MentorLoginComponent },
+    { path: 'register/student', component: RegisterStudentComponent },
+    { path: 'register/mentor', component: RegisterMentorComponent },
+    { path: 'student/dashboard', component: StudentDashboardComponent },
+    { path: 'student/projects', component: StudentProjectsComponent },
+    { path: 'student/find-mentor', component: FindMentorComponent },
+    { path: 'mentor/dashboard', component: MentorDashboardComponent },
+    { path: 'mentor/mentees', component: MentorMenteesComponent },
+    { path: 'mentor/requests', component: MentorRequestsComponent },
+    { path: 'chat', component: ChatComponent },
+    { path: 'student/all-projects', component: AllProjectsComponent },
+];

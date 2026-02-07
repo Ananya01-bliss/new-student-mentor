@@ -1,0 +1,203 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  font-family: 'Plus Jakarta Sans', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--bg-primary);
+  position: relative;
+  overflow-x: hidden;
+  transition: background-color 0.3s ease;
+}
+
+/* Engineering background: blueprint grid + soft gradient */
+:host::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(92, 64, 51, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(92, 64, 51, 0.04) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+:host::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse 100% 70% at 50% 20%, var(--accent-subtle) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.landing-container {
+  text-align: center;
+  max-width: 1000px;
+  width: 100%;
+  padding: 2.5rem 2rem;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.content-center {
+  text-align: center;
+  margin-bottom: 2rem;
+  width: 100%;
+}
+
+.content-center h1 {
+  font-size: clamp(2.25rem, 5vw, 3.5rem);
+  font-weight: 800;
+  margin-bottom: 1rem;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  font-size: 1.2rem;
+  margin-bottom: 4rem;
+  max-width: 650px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.65;
+  font-weight: 500;
+}
+
+.theme-footer {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 1000;
+}
+
+.cards-container {
+  display: flex;
+  justify-content: center;
+  gap: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.card {
+  background: var(--bg-secondary);
+  border-radius: 20px;
+  padding: 3rem;
+  width: 380px;
+  box-shadow: var(--card-shadow);
+  text-align: left;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border 0.2s ease;
+  border: 1px solid var(--border-color);
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: var(--card-shadow-hover);
+  border-color: var(--brown-muted);
+}
+
+.icon-wrapper {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  margin-bottom: 2rem;
+  transition: transform 0.2s ease;
+}
+
+.card:hover .icon-wrapper {
+  transform: scale(1.05);
+}
+
+.student-icon {
+  background: var(--accent-subtle);
+  color: var(--student-primary);
+}
+
+.mentor-icon {
+  background: rgba(111, 78, 55, 0.12);
+  color: var(--mentor-primary);
+}
+
+.card h2 {
+  font-size: 1.75rem;
+  margin-bottom: 1.25rem;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.card p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  line-height: 1.65;
+  margin-bottom: 2.5rem;
+  min-height: 70px;
+  font-weight: 500;
+}
+
+.btn {
+  display: block;
+  width: 100%;
+  padding: 1rem 1.25rem;
+  border: none;
+  border-radius: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 1rem;
+  transition: all 0.25s ease;
+  text-align: center;
+  text-decoration: none;
+  font-size: 1rem;
+  font-family: inherit;
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-dark {
+  background-color: var(--student-primary);
+  color: var(--cream-card);
+  box-shadow: 0 4px 12px rgba(92, 64, 51, 0.25);
+}
+
+.btn-primary {
+  background-color: var(--mentor-primary);
+  color: var(--cream-card);
+  box-shadow: 0 4px 12px rgba(111, 78, 55, 0.3);
+}
+
+.btn-outline {
+  background-color: transparent;
+  border: 2px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.student-card .btn-outline:hover {
+  border-color: var(--student-primary);
+  color: var(--student-primary);
+  background: var(--accent-subtle);
+}
+
+.mentor-card .btn-outline:hover {
+  border-color: var(--mentor-primary);
+  color: var(--mentor-primary);
+  background: rgba(111, 78, 55, 0.08);
+}
+
+.btn-outline:hover {
+  background-color: var(--ivory);
+}

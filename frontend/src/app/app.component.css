@@ -1,0 +1,8 @@
+.fixed-theme-switcher {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+}
+
+/* Theme switcher uses CSS variables from styles.css – brown/cream applied automatically */

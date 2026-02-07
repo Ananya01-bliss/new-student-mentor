@@ -1,0 +1,170 @@
+<div class="mentees-container">
+    <div class="header">
+        <a routerLink="/mentor/dashboard" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <div class="title-section">
+            <h1>My Mentees</h1>
+            <p>Manage and track the progress of your assigned students</p>
+        </div>
+    </div>
+
+    <div class="stats-row">
+        <div class="stat-mini-card">
+            <span class="label">Total Mentees</span>
+            <span class="value">{{ mentees.length }}</span>
+        </div>
+    </div>
+
+    <div class="mentees-grid">
+        <div class="mentee-card" *ngFor="let m of mentees">
+            <div class="card-header">
+                <div class="avatar">{{ getInitials(m.student.name) }}</div>
+                <div class="mentee-info">
+                    <h3>{{ m.student.name }}</h3>
+                    <p>{{ m.student.domain }} • {{ m.student.specialization }}</p>
+                </div>
+                <button class="chat-btn" (click)="openChat(m.student._id)" title="Chat">
+                    <i class="fas fa-comments"></i>
+                </button>
+            </div>
+
+            <div class="project-snapshot">
+                <label>Current Project</label>
+                <h4>{{ m.title }}</h4>
+                <div class="progress-section">
+                    <app-progress-bar [progress]="m.progress || 0" height="8px" [showLabel]="true"></app-progress-bar>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <span class="last-update" *ngIf="m.updatedAt">Updated {{ m.updatedAt | date:'shortDate' }}</span>
+                <button class="view-btn" (click)="openProjectDetails(m)">Manage Project</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Management Modal (Sidebar style) -->
+    <div class="modal-overlay" *ngIf="selectedProject" (click)="closeProjectDetails()">
+        <div class="sidebar-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h2>Project Management</h2>
+                <button class="close-btn" (click)="closeProjectDetails()">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <div class="student-brief">
+                    <div class="avatar-large">{{ getInitials(selectedProject.student.name) }}</div>
+                    <h3>{{ selectedProject.student.name }}</h3>
+                    <p>{{ selectedProject.student.email }}</p>
+                </div>
+
+                <div class="project-details">
+                    <label>Project Title</label>
+                    <p>{{ selectedProject.title }}</p>
+
+                    <label>Idea & Progress</label>
+                    <p class="idea-text">{{ selectedProject.idea }}</p>
+                    <app-progress-bar [progress]="selectedProject.progress" height="12px"></app-progress-bar>
+
+                    <div class="drop-section" *ngIf="selectedProject.status !== 'completed'">
+                        <button class="drop-btn" (click)="dropMentee(selectedProject._id)">
+                            <i class="fas fa-user-minus"></i> Drop Student
+                        </button>
+                        <p class="drop-hint">Finalize mentorship to free up intake capacity</p>
+                    </div>
+                </div>
+
+                <div class="milestones-section">
+                    <div class="section-title">
+                        <h3>Milestones</h3>
+                        <button class="add-btn" (click)="openAddMilestone()">+ Add</button>
+                    </div>
+
+                    <div class="milestone-items">
+                        <div *ngFor="let mil of selectedProject.milestones" class="mentor-milestone-item">
+                            <div class="mil-header">
+                                <span class="mil-title">{{ mil.title }}</span>
+                                <span class="badge" [ngClass]="getStatusClass(mil.status)">{{ mil.status }}</span>
+                            </div>
+                            <p class="mil-desc" *ngIf="mil.description">{{ mil.description }}</p>
+
+                            <!-- Submission View -->
+                            <div class="submission-view" *ngIf="mil.status !== 'pending'">
+                                <label>Submission Content:</label>
+                                <div *ngIf="mil.submission">
+                                    <a *ngIf="mil.submission.startsWith('/uploads')"
+                                        [href]="'http://localhost:5000' + mil.submission" target="_blank"
+                                        class="file-link">
+                                        <i class="fas fa-file-download"></i> View Submitted File
+                                    </a>
+                                    <p *ngIf="!mil.submission.startsWith('/uploads')" class="sub-text">{{ mil.submission
+                                        }}</p>
+                                </div>
+                                <button *ngIf="mil.status === 'submitted'" class="evaluate-btn"
+                                    (click)="openEvaluate(mil)">
+                                    Evaluate Now
+                                </button>
+                            </div>
+
+                            <div class="mil-footer" *ngIf="mil.feedback">
+                                <label>Feedback:</label>
+                                <p class="feedback-text">{{ mil.feedback }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Milestone Modal -->
+    <div class="modal-overlay sub-modal" *ngIf="showAddMilestoneModal">
+        <div class="modal-card">
+            <h3>Add Project Milestone</h3>
+            <div class="form-group">
+                <label>Milestone Title</label>
+                <input type="text" [(ngModel)]="newMilestone.title" placeholder="e.g. Database Design">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea [(ngModel)]="newMilestone.description" placeholder="What needs to be done?"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Due Date</label>
+                <input type="date" [(ngModel)]="newMilestone.dueDate">
+            </div>
+            <div class="modal-actions">
+                <button class="cancel-btn" (click)="closeAddMilestone()">Cancel</button>
+                <button class="submit-btn" (click)="submitAddMilestone()" [disabled]="!newMilestone.title">Add
+                    Milestone</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Evaluate Modal -->
+    <div class="modal-overlay sub-modal" *ngIf="showEvaluateModal">
+        <div class="modal-card">
+            <h3>Evaluate Submission</h3>
+            <p>Review the student's work and provide feedback.</p>
+
+            <div class="form-group">
+                <label>Result</label>
+                <select [(ngModel)]="evaluation.status">
+                    <option value="completed">Approve (Mark as Completed)</option>
+                    <option value="pending">Reject (Back to Pending for revisions)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label>Feedback</label>
+                <textarea [(ngModel)]="evaluation.feedback" placeholder="Provide constructive feedback..."></textarea>
+            </div>
+
+            <div class="modal-actions">
+                <button class="cancel-btn" (click)="closeEvaluate()">Cancel</button>
+                <button class="submit-btn" (click)="submitEvaluation()">Submit Result</button>
+            </div>
+        </div>
+    </div>
+</div>
