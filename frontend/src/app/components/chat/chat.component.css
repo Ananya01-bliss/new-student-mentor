@@ -343,3 +343,46 @@
     cursor: not-allowed;
     transform: none;
 }
+
+/* Approval Status Messages */
+.error-banner {
+    background-color: #ffe5e5;
+    border-left: 4px solid #d32f2f;
+    color: #c62828;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 500;
+}
+
+.status-banner {
+    background-color: #fff3e0;
+    border-left: 4px solid #f57c00;
+    color: #e65100;
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-weight: 500;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.chat-footer.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.chat-main .status.pending {
+    color: #f57c00;
+    font-weight: 600;
+}

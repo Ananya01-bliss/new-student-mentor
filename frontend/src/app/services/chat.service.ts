@@ -30,7 +30,7 @@ export class ChatService {
     }
 
     private getHeaders() {
-        return new HttpHeaders().set('x-auth-token', this.authService.getToken() || '');
+        return new HttpHeaders().set('Authorization', `Bearer ${this.authService.getToken() || ''}`);
     }
 
     // New Message Observable for components to subscribe to

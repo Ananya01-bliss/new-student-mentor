@@ -15,7 +15,6 @@ export class StudentLoginComponent {
     loginData = {
         email: '',
         password: '',
-        role: 'student'
     };
     errorMessage: string = '';
 
@@ -27,6 +26,7 @@ export class StudentLoginComponent {
 
         this.authService.login(this.loginData).subscribe({
             next: (res) => {
+                console.log('LOGIN RESPONSE:', res);
                 this.router.navigate(['/student/dashboard']);
             },
             error: (err) => {

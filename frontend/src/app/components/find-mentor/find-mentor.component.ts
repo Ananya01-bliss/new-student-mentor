@@ -83,25 +83,64 @@ export class FindMentorComponent implements OnInit {
     }
 
     loadMentors(): void {
-        this.http.get<any[]>('http://localhost:5000/api/auth/mentors').subscribe({
+        this.http.get<any[]>('http://localhost:5000/api/auth/mentors', {
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` }
+        }).subscribe({
             next: (data) => {
                 this.mentors = data;
                 this.filteredMentors = [...this.mentors];
+                // Load suggested mentors with intelligent matching
+                this.loadSuggestedMentors();
             },
             error: (err) => console.error('Error fetching mentors:', err)
+        });
+    }
+
+    loadSuggestedMentors(): void {
+        // Try to get suggested mentors based on the current project's keywords
+        this.projectService.getStudentProjects().subscribe({
+            next: (projects) => {
+                if (projects && projects.length > 0) {
+                    const lastProject = projects[0];
+                    if (lastProject.keywords && lastProject.keywords.length > 0) {
+                        this.projectService.getSuggestionsByKeywords(lastProject.keywords).subscribe({
+                            next: (suggestedMentors) => {
+                                // Merge suggested mentors with match scores
+                                this.mentors = this.mentors.map((mentor: any) => {
+                                    const suggested = suggestedMentors.find((s: any) => s._id === mentor._id);
+                                    return {
+                                        ...mentor,
+                                        matchScore: suggested?.matchScore || 0,
+                                        matchedKeywords: suggested?.matchedKeywords || []
+                                    };
+                                });
+                                // Sort by match score
+                                this.mentors.sort((a: any, b: any) => (b.matchScore || 0) - (a.matchScore || 0));
+                                this.filteredMentors = [...this.mentors];
+                            },
+                            error: (err) => console.error('Error loading suggested mentors:', err)
+                        });
+                    }
+                }
+            },
+            error: (err) => console.error('Error getting projects:', err)
         });
     }
 
     filterMentors(): void {
         this.filteredMentors = this.mentors.filter(mentor => {
             const matchesSearch = mentor.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-                (mentor.expertise && mentor.expertise.some((e: string) => e.toLowerCase().includes(this.searchQuery.toLowerCase())));
+                (mentor.expertise && mentor.expertise.some((e: any) => e.toLowerCase().includes(this.searchQuery.toLowerCase()))) ||
+                (mentor.matchedKeywords && mentor.matchedKeywords.some((k: any) => k.toLowerCase().includes(this.searchQuery.toLowerCase())));
 
             const matchesExpertise = this.selectedExpertise.length === 0 ||
-                (mentor.expertise && this.selectedExpertise.some(e => mentor.expertise.includes(e)));
+                (mentor.expertise && mentor.expertise.some((e: any) => mentor.expertise.includes(e)));
 
             return matchesSearch && matchesExpertise;
         });
+        
+        // Re-sort by match score after filtering
+        this.filteredMentors.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
     }
 
     toggleExpertise(expertise: string): void {
@@ -131,11 +170,12 @@ export class FindMentorComponent implements OnInit {
         this.isSending = true;
         const payload = {
             ...this.requestData,
-            mentorId: this.selectedMentor._id
+            mentorId: this.selectedMentor._id,
+            keywords: this.requestData.guidanceNeeded.split(/[\s,;]+/).filter(k => k.length > 0)
         };
 
         this.http.post('http://localhost:5000/api/projects', payload, {
-            headers: { 'x-auth-token': localStorage.getItem('token') || '' }
+            headers: { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` }
         }).subscribe({
             next: (res) => {
                 alert('Mentorship request sent successfully!');

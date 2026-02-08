@@ -40,7 +40,7 @@ export class MentorRequestsComponent implements OnInit {
     }
 
     private getHeaders() {
-        return { 'x-auth-token': localStorage.getItem('token') || '' };
+        return { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` };
     }
 
     loadRequests(): void {

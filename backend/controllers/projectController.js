@@ -2,62 +2,49 @@ const Project = require('../models/Project');
 const { Student, Mentor } = require('../models/User');
 const { gatherKeywords, normalizeKeywordInput, scoreMentor } = require('../utils/keywordMatch');
 
-exports.createProject = async (req, res) => {
+    exports.createProject = async (req, res) => {
     try {
-        const { idea, guidanceNeeded, mentorId, keywords } = req.body;
-        const title = req.body.title ? req.body.title.trim() : '';
-        const studentId = req.user.id;
-
-        if (!title) {
-            return res.status(400).json({ message: 'Project title is required' });
+        // 1️⃣ Ensure only students can create projects
+        if (req.user.role !== 'student') {
+            return res.status(403).json({ message: 'Only students can create projects' });
         }
 
-        // Check for existing project by Title (case-insensitive) + Student to prevent duplicates
-        // Use regex for case-insensitive exact match
-        let project = await Project.findOne({
-            student: studentId,
-            title: { $regex: new RegExp(`^${title.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, 'i') }
-        });
-
-        if (project) {
-            // Update existing project
-            project.idea = idea;
-            project.guidanceNeeded = guidanceNeeded;
-            if (mentorId) {
-                project.mentor = mentorId;
-                // Reset status to pending if it was rejected or completed (re-application)
-                if (['rejected', 'completed'].includes(project.status)) {
-                    project.status = 'pending';
-                    project.progress = 0; // Reset progress for new application
-                }
-            }
-            if (keywords) project.keywords = keywords;
-            project.updatedAt = Date.now();
-
-            await project.save();
-            return res.status(200).json(project);
-        }
-
-        // Create new project if it doesn't exist
-        const newProject = new Project({
-            title, // Already trimmed
+        // 2️⃣ Extract data from request body
+        const {
+            title,
             idea,
             guidanceNeeded,
-            keywords: keywords || [],
-            student: studentId,
-            mentor: mentorId
+            keywords,
+            mentorId
+        } = req.body;
+
+        // 3️⃣ Basic validation
+        if (!title || !idea) {
+            return res.status(400).json({ message: 'Title and idea are required' });
+        }
+
+        // 4️⃣ Create project WITH mentorship request
+        const project = new Project({
+            title,
+            idea,
+            guidanceNeeded,
+            keywords,
+            student: req.user.id,   // 🔐 from JWT
+            mentor: mentorId || null,  // ⭐ ASSIGN MENTOR IF STUDENT EXPLICITLY SELECTS ONE
+            status: mentorId ? 'pending' : 'draft'  // 'draft' if no mentor, 'pending' if mentor selected
         });
 
-        project = await newProject.save();
+        // 5️⃣ Save to DB
+        await project.save();
 
-        // Add project to student's record
-        await Student.findByIdAndUpdate(studentId, {
-            $push: { projects: project._id }
-        });
+        // 6️⃣ Populate mentor info before responding
+        await project.populate('mentor', 'name email');
 
+        // 7️⃣ Respond
         res.status(201).json(project);
-    } catch (err) {
-        console.error(err);
+
+    } catch (error) {
+        console.error('CREATE PROJECT ERROR:', error);
         res.status(500).json({ message: 'Server error' });
     }
 };
