@@ -11,7 +11,7 @@ import { ProjectService } from '../../services/project.service';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './chat.component.html',
-  styleUrl: './chat.component.css'
+  styleUrls: ['./chat.component.css']
 })
 export class ChatComponent implements OnInit, AfterViewChecked {
   @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
@@ -39,7 +39,8 @@ export class ChatComponent implements OnInit, AfterViewChecked {
       this.currentUser = user;
 
       const mentorId = this.route.snapshot.queryParamMap.get('mentorId');
-      this.checkMentorshipApproval(mentorId);
+      const projectId = this.route.snapshot.queryParamMap.get('projectId');
+      this.checkMentorshipApproval(mentorId, projectId);
       this.loadConversations(mentorId);
     });
 
@@ -81,19 +82,46 @@ export class ChatComponent implements OnInit, AfterViewChecked {
     });
   }
 
-  checkMentorshipApproval(mentorId: string | null): void {
+  checkMentorshipApproval(mentorId: string | null, projectId?: string | null): void {
     if (!mentorId) {
       this.isApproved = true; // Allow existing conversations
       return;
     }
 
-    // Check if student has an approved mentorship with this mentor
+    // If a projectId is provided, prefer checking that project directly
+    if (projectId) {
+      this.projectService.getStudentProjects().subscribe({
+        next: (projects) => {
+          const match = projects.find((p: any) => p._id === projectId);
+          if (match && match.mentor && (match.mentor._id === mentorId || match.mentor === mentorId) && match.status === 'approved') {
+            this.isApproved = true;
+            this.errorMessage = '';
+          } else {
+            // fallback to searching any approved project for this mentor
+            const approvedProject = projects.find((p: any) => p.mentor && (p.mentor._id === mentorId || p.mentor === mentorId) && p.status === 'approved');
+            if (approvedProject) {
+              this.isApproved = true;
+              this.errorMessage = '';
+            } else {
+              this.isApproved = false;
+              this.errorMessage = 'You can only chat with mentors after they approve your mentorship request.';
+              this.statusMessage = 'Waiting for mentor approval...';
+            }
+          }
+        },
+        error: (err) => {
+          console.error('Error checking mentorship:', err);
+          this.isApproved = false;
+          this.errorMessage = 'Error verifying mentorship status.';
+        }
+      });
+      return;
+    }
+
+    // Otherwise check any approved project tied to this mentor
     this.projectService.getStudentProjects().subscribe({
       next: (projects) => {
-        const approvedProject = projects.find(
-          (p: any) => p.mentor && (p.mentor._id === mentorId || p.mentor === mentorId) && p.status === 'approved'
-        );
-        
+        const approvedProject = projects.find((p: any) => p.mentor && (p.mentor._id === mentorId || p.mentor === mentorId) && p.status === 'approved');
         if (approvedProject) {
           this.isApproved = true;
           this.errorMessage = '';

@@ -10,7 +10,7 @@ import { ProjectService } from '../../services/project.service';
     standalone: true,
     imports: [CommonModule, FormsModule, RouterLink],
     templateUrl: './find-mentor.component.html',
-    styleUrl: './find-mentor.component.css'
+    styleUrls: ['./find-mentor.component.css']
 })
 export class FindMentorComponent implements OnInit {
     searchQuery: string = '';

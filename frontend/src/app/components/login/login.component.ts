@@ -8,7 +8,7 @@ import { ThemeSwitcherComponent } from '../theme-switcher/theme-switcher.compone
   standalone: true,
   imports: [CommonModule, RouterLink, ThemeSwitcherComponent],
   templateUrl: './login.component.html',
-  styleUrl: './login.component.css'
+  styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
   role: 'student' | 'mentor' = 'student';

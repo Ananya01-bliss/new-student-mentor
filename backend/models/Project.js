@@ -55,7 +55,7 @@ const projectSchema = new mongoose.Schema({
             },
             status: {
                 type: String,
-                enum: ['pending', 'approved', 'rejected', 'in_progress', 'completed'],
+                enum: ['pending', 'submitted', 'approved', 'rejected', 'in_progress', 'completed'],
                 default: 'pending'
             },
             submission: {

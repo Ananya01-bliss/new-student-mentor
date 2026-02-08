@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [CommonModule, RouterLink, ProgressBarComponent],
   templateUrl: './student-dashboard.component.html',
-  styleUrl: './student-dashboard.component.css'
+  styleUrls: ['./student-dashboard.component.css']
 })
 export class StudentDashboardComponent implements OnInit, OnDestroy {
   project: any = null;

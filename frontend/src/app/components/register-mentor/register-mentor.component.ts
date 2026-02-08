@@ -9,7 +9,7 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [RouterLink, CommonModule, FormsModule],
   templateUrl: './register-mentor.component.html',
-  styleUrl: './register-mentor.component.css'
+  styleUrls: ['./register-mentor.component.css']
 })
 export class RegisterMentorComponent {
   errorMessage: string = '';
