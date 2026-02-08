@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ProjectService } from '../../services/project.service';
+import { NotificationsService } from '../../services/notifications.service';
 import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
 
 @Component({
@@ -10,7 +11,7 @@ import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
     standalone: true,
     imports: [CommonModule, RouterLink, FormsModule, ProgressBarComponent],
     templateUrl: './student-projects.component.html',
-    styleUrl: './student-projects.component.css'
+    styleUrls: ['./student-projects.component.css']
 })
 export class StudentProjectsComponent implements OnInit {
     projectTitle: string = '';
@@ -34,7 +35,7 @@ export class StudentProjectsComponent implements OnInit {
     selectedFile: File | null = null;
     submitting: boolean = false;
 
-    constructor(private router: Router, private projectService: ProjectService, private route: ActivatedRoute) { }
+    constructor(private router: Router, private projectService: ProjectService, private route: ActivatedRoute, private notificationsService: NotificationsService) { }
 
     ngOnInit() {
         this.fetchProject();
@@ -194,12 +195,14 @@ export class StudentProjectsComponent implements OnInit {
             this.projectService.submitMilestoneWithFile(this.projectId, this.selectedMilestone._id, this.selectedFile).subscribe({
                 next: (res) => {
                     this.successMessage = 'Milestone file submitted successfully!';
+                    this.notificationsService.notifyMilestoneSubmitted(this.selectedMilestone.title);
                     this.fetchProject();
                     this.closeSubmitModal();
                     this.submitting = false;
                 },
                 error: (err) => {
                     this.errorMessage = err.error.message || 'Error uploading file';
+                    this.notificationsService.notifyError(this.errorMessage);
                     this.submitting = false;
                 }
             });
@@ -213,12 +216,14 @@ export class StudentProjectsComponent implements OnInit {
             this.projectService.submitMilestone(data).subscribe({
                 next: (res) => {
                     this.successMessage = 'Milestone submitted successfully!';
+                    this.notificationsService.notifyMilestoneSubmitted(this.selectedMilestone.title);
                     this.fetchProject();
                     this.closeSubmitModal();
                     this.submitting = false;
                 },
                 error: (err) => {
                     this.errorMessage = err.error.message || 'Error submitting milestone';
+                    this.notificationsService.notifyError(this.errorMessage);
                     this.submitting = false;
                 }
             });

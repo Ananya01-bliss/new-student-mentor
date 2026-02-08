@@ -9,7 +9,7 @@ import { AuthService } from '../../services/auth.service';
   standalone: true,
   imports: [CommonModule, RouterLink],
   templateUrl: './mentor-dashboard.component.html',
-  styleUrl: './mentor-dashboard.component.css'
+  styleUrls: ['./mentor-dashboard.component.css']
 })
 export class MentorDashboardComponent implements OnInit {
   menteeCount: number = 0;

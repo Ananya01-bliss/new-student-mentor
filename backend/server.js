@@ -26,7 +26,17 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // Middleware
-app.use(cors({ origin: ['http://localhost:4200', 'http://localhost:4201'], credentials: true }));
+app.use(cors({
+  origin: "http://localhost:4200",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+}));
+
+app.options("*", cors({
+  origin: "http://localhost:4200",
+  credentials: true
+}));
 app.use(express.json());
 app.use('/uploads', express.static(uploadsDir));
 
@@ -106,3 +116,5 @@ function connectWithRetry(retriesLeft = MAX_RETRIES) {
 
 console.log('Connecting to MongoDB:', redactConnectionString(mongoURI));
 connectWithRetry();
+
+

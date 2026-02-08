@@ -12,6 +12,7 @@ import { ChatComponent } from './components/chat/chat.component';
 import { FindMentorComponent } from './components/find-mentor/find-mentor.component';
 import { MentorRequestsComponent } from './components/mentor-requests/mentor-requests.component';
 import { AllProjectsComponent } from './components/all-projects/all-projects.component';
+import { NotificationsComponent } from './components/notifications/notifications.component';
 
 export const routes: Routes = [
     { path: '', component: LandingComponent },
@@ -26,5 +27,6 @@ export const routes: Routes = [
     { path: 'mentor/mentees', component: MentorMenteesComponent },
     { path: 'mentor/requests', component: MentorRequestsComponent },
     { path: 'chat', component: ChatComponent },
+    { path: 'notifications', component: NotificationsComponent },
     { path: 'student/all-projects', component: AllProjectsComponent },
 ];

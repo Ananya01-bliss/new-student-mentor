@@ -1,24 +1,26 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { AuthService } from '../../services/auth.service';
 import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-student-dashboard',
   standalone: true,
   imports: [CommonModule, RouterLink, ProgressBarComponent],
   templateUrl: './student-dashboard.component.html',
-  styleUrl: './student-dashboard.component.css'
+  styleUrls: ['./student-dashboard.component.css']
 })
-export class StudentDashboardComponent implements OnInit {
+export class StudentDashboardComponent implements OnInit, OnDestroy {
   project: any = null;
   projects: any[] = [];
   completedMilestones: number = 0;
   totalMilestones: number = 0;
   userName: string = 'Student';
   suggestedMentors: any[] = [];
+  private userSubscription: Subscription | null = null;
 
   constructor(
     private projectService: ProjectService,
@@ -26,8 +28,19 @@ export class StudentDashboardComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    this.fetchDashboardData();
-    this.getUserName();
+    // Subscribe to user changes to detect login/logout transitions
+    this.userSubscription = this.authService.currentUser.subscribe(user => {
+      if (user && user._id) {
+        this.fetchDashboardData();
+        this.getUserName();
+      }
+    });
+  }
+
+  ngOnDestroy() {
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
   }
 
   getUserName() {
@@ -51,7 +64,8 @@ export class StudentDashboardComponent implements OnInit {
             this.fetchSuggestions(this.project._id);
           }
         }
-      }
+      },
+      error: (err) => console.error('Error fetching projects:', err)
     });
   }
 

@@ -10,7 +10,7 @@ import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
     standalone: true,
     imports: [CommonModule, RouterLink, FormsModule, ProgressBarComponent],
     templateUrl: './mentor-mentees.component.html',
-    styleUrl: './mentor-mentees.component.css'
+    styleUrls: ['./mentor-mentees.component.css']
 })
 export class MentorMenteesComponent implements OnInit {
     mentees: any[] = [];

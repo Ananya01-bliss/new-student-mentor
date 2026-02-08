@@ -12,8 +12,12 @@ export class ProjectService {
     constructor(private http: HttpClient, private authService: AuthService) { }
 
     private getHeaders() {
-        return new HttpHeaders().set('x-auth-token', this.authService.getToken() || '');
-    }
+    const token = this.authService.getToken();
+
+    return new HttpHeaders({
+        Authorization: `Bearer ${token}`
+    });
+}
 
     createProject(projectData: any): Observable<any> {
         return this.http.post(this.apiUrl, projectData, { headers: this.getHeaders() });
@@ -54,7 +58,9 @@ export class ProjectService {
         formData.append('milestoneId', milestoneId);
 
         // We don't set Content-Type header here so that the browser sets it correctly with boundary
-        const headers = new HttpHeaders().set('x-auth-token', this.authService.getToken() || '');
+        const headers = new HttpHeaders({
+    Authorization: `Bearer ${this.authService.getToken()}`
+});
         return this.http.post(`${this.apiUrl}/submit-milestone-file`, formData, { headers });
     }
 

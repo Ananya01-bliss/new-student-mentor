@@ -20,6 +20,11 @@ exports.register = async (req, res) => {
 
         // Create user based on role
         if (role === 'student') {
+            if (!otherData.usn || !otherData.domain) {
+        return res.status(400).json({
+            message: 'USN and domain are required for students'
+        });
+    }
             user = new Student({
                 email,
                 password: hashedPassword,

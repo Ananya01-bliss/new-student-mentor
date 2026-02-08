@@ -7,7 +7,7 @@ import { ThemeSwitcherComponent } from '../theme-switcher/theme-switcher.compone
   standalone: true,
   imports: [RouterLink, ThemeSwitcherComponent],
   templateUrl: './landing.component.html',
-  styleUrl: './landing.component.css'
+  styleUrls: ['./landing.component.css']
 })
 export class LandingComponent {
   // Component cleaned up: Anti-gravity effect and canvas logic removed.

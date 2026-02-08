@@ -49,17 +49,32 @@
         </header>
 
         <div class="mentors-grid">
-            <div *ngFor="let mentor of filteredMentors" class="mentor-card">
+            <div *ngFor="let mentor of filteredMentors" class="mentor-card" [class.high-match]="mentor.matchScore > 5">
                 <div class="mentor-header">
                     <img [src]="'https://ui-avatars.com/api/?name=' + mentor.name" [alt]="mentor.name"
                         class="mentor-avatar">
-                    <div class="mentor-badge" [class.available]="true">Available</div>
+                    <div class="mentor-badge" [class.available]="true">
+                        Available
+                        <span class="match-score" *ngIf="mentor.matchScore" title="Intelligence Match Score">
+                            {{ mentor.matchScore }} pts
+                        </span>
+                    </div>
                 </div>
                 <div class="mentor-info">
                     <h3>{{ mentor.name }}</h3>
                     <p class="role">{{ mentor.summary || 'Senior Mentor' }}</p>
                     <div class="expertise-tags">
                         <span *ngFor="let tech of mentor.expertise" class="tag">{{ tech }}</span>
+                    </div>
+                    <!-- Matched Keywords from Intelligent Matching -->
+                    <div class="matched-keywords" *ngIf="mentor.matchedKeywords && mentor.matchedKeywords.length > 0">
+                        <small>Matched:</small>
+                        <span *ngFor="let keyword of mentor.matchedKeywords | slice:0:3" class="keyword-tag">
+                            {{ keyword }}
+                        </span>
+                        <span class="keyword-more" *ngIf="mentor.matchedKeywords.length > 3">
+                            +{{ mentor.matchedKeywords.length - 3 }} more
+                        </span>
                     </div>
                     <div class="card-actions">
                         <button class="btn-request" (click)="openRequestModal(mentor)">Request Mentorship</button>

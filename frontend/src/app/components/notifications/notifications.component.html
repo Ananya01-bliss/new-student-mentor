@@ -1,0 +1,39 @@
+<div class="notifications-page">
+    <header class="notifications-header">
+        <div class="header-left">
+            <h2>Notifications</h2>
+            <span class="unread-badge" *ngIf="getUnreadCount() > 0">{{ getUnreadCount() }}</span>
+        </div>
+        <div class="actions">
+            <button class="btn-filter" [class.active]="filterUnread" (click)="toggleUnreadFilter()">
+                Unread Only
+            </button>
+            <button class="btn-secondary" (click)="clearAll()" [disabled]="notifications.length === 0">
+                Clear all
+            </button>
+        </div>
+    </header>
+
+    <section class="notifications-list">
+        <div *ngIf="filteredNotifications.length === 0" class="empty">
+            <div class="empty-icon">🔔</div>
+            <p>{{ notifications.length === 0 ? 'No notifications yet.' : 'No unread notifications.' }}</p>
+        </div>
+
+        <div *ngFor="let n of filteredNotifications" class="notification-item" [class.unread]="!n.read">
+            <div class="left">
+                <div class="avatar">{{ getIcon(n) }}</div>
+            </div>
+            <div class="body">
+                <div class="title">{{ n.title }}</div>
+                <div class="message">{{ n.body }}</div>
+                <div class="meta">{{ n.timestamp | date:'short' }}</div>
+            </div>
+            <div class="right">
+                <button class="btn-primary" (click)="markRead(n)" [disabled]="n.read">
+                    {{ n.read ? '✓ Read' : 'Mark read' }}
+                </button>
+            </div>
+        </div>
+    </section>
+</div>

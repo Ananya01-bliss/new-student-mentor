@@ -3,52 +3,85 @@ const mongoose = require('mongoose');
 const projectSchema = new mongoose.Schema({
     title: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
+
     idea: {
         type: String,
         required: true
     },
+
     student: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
         required: true
     },
+
     mentor: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        default: null
     },
+
     guidanceNeeded: {
         type: String,
-        required: false
+        default: ''
     },
+
     status: {
         type: String,
-        enum: ['pending', 'approved', 'rejected', 'in_progress', 'completed'],
-        default: 'pending'
+        enum: ['draft', 'pending', 'approved', 'rejected', 'in_progress', 'completed'],
+        default: 'draft'
     },
+
     progress: {
         type: Number,
         default: 0
     },
-    milestones: [{
-        title: { type: String, required: true },
-        description: { type: String },
-        dueDate: { type: Date },
-        status: {
+
+    milestones: [
+        {
+            title: {
+                type: String,
+                required: true
+            },
+            description: {
+                type: String,
+                default: ''
+            },
+            dueDate: {
+                type: Date
+            },
+            status: {
+                type: String,
+                enum: ['pending', 'submitted', 'approved', 'rejected', 'in_progress', 'completed'],
+                default: 'pending'
+            },
+            submission: {
+                type: String,
+                default: null
+            },
+            feedback: {
+                type: String,
+                default: ''
+            },
+            updatedAt: {
+                type: Date,
+                default: Date.now
+            }
+        }
+    ],
+
+    keywords: [
+        {
             type: String,
-            enum: ['pending', 'submitted', 'completed'],
-            default: 'pending'
-        },
-        submission: { type: String }, // Links or text
-        feedback: { type: String },
-        updatedAt: { type: Date, default: Date.now }
-    }],
-    keywords: [{ type: String }],
-    createdAt: {
-        type: Date,
-        default: Date.now
-    }
+            lowercase: true,
+            trim: true
+        }
+    ]
+}, {
+    timestamps: true
 });
 
 module.exports = mongoose.model('Project', projectSchema);

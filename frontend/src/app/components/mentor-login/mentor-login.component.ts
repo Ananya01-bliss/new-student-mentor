@@ -9,7 +9,7 @@ import { AuthService } from '../../services/auth.service';
     standalone: true,
     imports: [CommonModule, RouterLink, FormsModule],
     templateUrl: './mentor-login.component.html',
-    styleUrl: './mentor-login.component.css'
+    styleUrls: ['./mentor-login.component.css']
 })
 export class MentorLoginComponent {
     loginData = {

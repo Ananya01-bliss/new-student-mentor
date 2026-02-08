@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
+import { NotificationsService } from '../../services/notifications.service';
 
 interface Request {
     id: number;
@@ -20,7 +21,7 @@ interface Request {
     standalone: true,
     imports: [CommonModule, RouterLink],
     templateUrl: './mentor-requests.component.html',
-    styleUrl: './mentor-requests.component.css'
+    styleUrls: ['./mentor-requests.component.css']
 })
 export class MentorRequestsComponent implements OnInit {
     activeTab: 'pending' | 'history' = 'pending';
@@ -32,7 +33,7 @@ export class MentorRequestsComponent implements OnInit {
         return this.activeTab === 'pending' ? this.requests : this.historyRequests;
     }
 
-    constructor(private http: HttpClient, private router: Router) { }
+    constructor(private http: HttpClient, private router: Router, private notificationsService: NotificationsService) { }
 
     ngOnInit(): void {
         this.loadRequests();
@@ -40,7 +41,7 @@ export class MentorRequestsComponent implements OnInit {
     }
 
     private getHeaders() {
-        return { 'x-auth-token': localStorage.getItem('token') || '' };
+        return { 'Authorization': `Bearer ${localStorage.getItem('token') || ''}` };
     }
 
     loadRequests(): void {
@@ -77,10 +78,19 @@ export class MentorRequestsComponent implements OnInit {
             { headers: this.getHeaders() })
             .subscribe({
                 next: () => {
+                    const request = this.requests.find(r => r._id === projectId);
+                    if (request && status === 'approved') {
+                        this.notificationsService.notifyMentorApproval(request.student?.name || 'Student');
+                    } else if (request && status === 'rejected') {
+                        this.notificationsService.notifyMentorRejection(request.student?.name || 'Student');
+                    }
                     this.loadRequests();
                     this.loadHistory();
                 },
-                error: (err) => console.error('Error responding to request:', err)
+                error: (err) => {
+                    console.error('Error responding to request:', err);
+                    this.notificationsService.notifyError('Failed to respond to request');
+                }
             });
     }
 

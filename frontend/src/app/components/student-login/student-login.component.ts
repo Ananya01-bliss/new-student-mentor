@@ -9,13 +9,12 @@ import { AuthService } from '../../services/auth.service';
     standalone: true,
     imports: [CommonModule, RouterLink, FormsModule],
     templateUrl: './student-login.component.html',
-    styleUrl: './student-login.component.css'
+    styleUrls: ['./student-login.component.css']
 })
 export class StudentLoginComponent {
     loginData = {
         email: '',
         password: '',
-        role: 'student'
     };
     errorMessage: string = '';
 
@@ -27,6 +26,7 @@ export class StudentLoginComponent {
 
         this.authService.login(this.loginData).subscribe({
             next: (res) => {
+                console.log('LOGIN RESPONSE:', res);
                 this.router.navigate(['/student/dashboard']);
             },
             error: (err) => {

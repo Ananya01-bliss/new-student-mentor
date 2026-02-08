@@ -7,7 +7,7 @@ import { ThemeSwitcherComponent } from './components/theme-switcher/theme-switch
   standalone: true,
   imports: [RouterOutlet, ThemeSwitcherComponent],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent {
   title = 'frontend';
