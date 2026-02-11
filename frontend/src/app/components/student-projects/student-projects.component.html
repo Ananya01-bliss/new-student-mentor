@@ -56,9 +56,9 @@
             </div>
         </div>
 
-        <div class="sidebar" *ngIf="projectId">
-            <!-- Progress Section (Relocated to Sidebar) -->
-            <div class="project-header-info sidebar-progress" *ngIf="projectId">
+        <div class="sidebar">
+            <!-- Progress Section (Shown only when approved) -->
+            <div class="project-header-info sidebar-progress" *ngIf="status === 'approved'">
                 <div class="progress-container">
                     <div class="progress-stats">
                         <h3>Overall Progress</h3>
@@ -68,8 +68,9 @@
                 </div>
             </div>
 
-            <!-- Project Milestones Section -->
-            <div class="milestones-card" *ngIf="projectId">
+            <!-- Project Milestones Section (Shown only when approved) -->
+            <!-- Milestones Sidebar (Show when project approved) -->
+            <div class="milestones-card" *ngIf="status === 'approved'">
                 <div class="milestone-header">
                     <h3>Project Milestones</h3>
                     <span class="milestone-count" *ngIf="milestones">{{ milestones.length }} Total</span>
@@ -106,8 +107,9 @@
                 </div>
             </div>
 
-            <!-- Suggested Mentors Section (Shown only for New Projects) -->
-            <div class="suggestions-card" *ngIf="!projectId && suggestedMentors && suggestedMentors.length > 0">
+            <!-- Suggested Mentors Section (Shown if NOT approved) -->
+            <div class="suggestions-card"
+                *ngIf="status !== 'approved' && suggestedMentors && suggestedMentors.length > 0">
                 <div class="suggestion-header">
                     <h3>Suggested Mentors</h3>
                     <span class="match-hint">Based on your keywords</span>
@@ -126,10 +128,48 @@
                         <div class="expertise-tags">
                             <span *ngFor="let exp of mentor.expertise.slice(0, 3)" class="tag">{{ exp }}</span>
                         </div>
-                        <p class="mentor-hint">Save project to apply</p>
+                        <div class="suggestion-actions">
+                            <button class="connect-btn" (click)="connectToMentor(mentor)" [disabled]="!projectId">
+                                <i class="fas fa-plus"></i> Connect
+                            </button>
+                            <p class="mentor-hint" *ngIf="!projectId">Save project to connect</p>
+                        </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
+<!-- Request Mentorship Modal -->
+<div class="modal-overlay" *ngIf="showRequestModal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h2>Request Mentorship from {{ selectedMentor?.name }}</h2>
+            <button class="btn-close" (click)="closeRequestModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label>Project Title</label>
+                <input type="text" [(ngModel)]="requestData.title" placeholder="Enter your project title" required>
+            </div>
+            <div class="form-group">
+                <label>Project Idea/Summary</label>
+                <textarea [(ngModel)]="requestData.idea" placeholder="Describe your project idea..." rows="4"
+                    required></textarea>
+            </div>
+            <div class="form-group">
+                <label>Guidance Needed</label>
+                <textarea [(ngModel)]="requestData.guidanceNeeded"
+                    placeholder="What specific help do you need from this mentor?" rows="3"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-secondary" (click)="closeRequestModal()">Cancel</button>
+            <button class="btn-primary" (click)="sendRequest()"
+                [disabled]="!requestData.title || !requestData.idea || isSending">
+                {{ isSending ? 'Sending...' : 'Send Request' }}
+            </button>
         </div>
     </div>
 </div>

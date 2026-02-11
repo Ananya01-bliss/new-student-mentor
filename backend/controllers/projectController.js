@@ -2,7 +2,7 @@ const Project = require('../models/Project');
 const { Student, Mentor } = require('../models/User');
 const { gatherKeywords, normalizeKeywordInput, scoreMentor } = require('../utils/keywordMatch');
 
-    exports.createProject = async (req, res) => {
+exports.createProject = async (req, res) => {
     try {
         // 1️⃣ Ensure only students can create projects
         if (req.user.role !== 'student') {
@@ -40,7 +40,21 @@ const { gatherKeywords, normalizeKeywordInput, scoreMentor } = require('../utils
         // 6️⃣ Populate mentor info before responding
         await project.populate('mentor', 'name email');
 
-        // 7️⃣ Respond
+        // 7️⃣ Notify mentor if assigned
+        if (mentorId) {
+            const io = req.app.get('io');
+            if (io) {
+                io.to(String(mentorId)).emit('notification', {
+                    title: '📋 New Mentorship Request',
+                    body: `${req.user.name} requested mentorship on "${title}".`,
+                    type: 'info',
+                    mentorId: req.user.id, // Store student info in 'mentorId' field for unified chat routing
+                    mentorName: req.user.name
+                });
+            }
+        }
+
+        // 8️⃣ Respond
         res.status(201).json(project);
 
     } catch (error) {
@@ -103,13 +117,33 @@ exports.respondToRequest = async (req, res) => {
                 });
             }
 
-            project.status = 'approved';
-            project.mentor = mentorId;
+            project.status = status === 'approved' ? 'approved' : 'rejected';
+            if (status === 'approved') project.mentor = mentorId;
         } else {
             project.status = 'rejected';
         }
 
         await project.save();
+
+        // Fetch mentor details for notification name if not in req.user
+        const mentor = await Mentor.findById(mentorId);
+        const mentorDisplayName = req.user.name || (mentor ? mentor.name : 'Mentor');
+
+        // Emit notification
+        const io = req.app.get('io');
+        if (io) {
+            io.to(String(project.student)).emit('notification', {
+                title: status === 'approved' ? '✅ Mentor Approved' : '❌ Mentor Request Rejected',
+                body: status === 'approved'
+                    ? `${mentorDisplayName} accepted your invitation to connect.`
+                    : `${mentorDisplayName} declined your mentorship request.`,
+                type: status === 'approved' ? 'success' : 'warning',
+                mentorId: mentorId,
+                mentorName: mentorDisplayName,
+                receiverId: String(project.student)
+            });
+        }
+
         res.json(project);
     } catch (err) {
         console.error(err);
@@ -318,8 +352,20 @@ exports.evaluateMilestone = async (req, res) => {
         milestone.feedback = feedback;
         milestone.updatedAt = Date.now();
 
-        await updateProjectProgress(project);
         await project.save();
+
+        // Emit notification
+        const io = req.app.get('io');
+        if (io) {
+            io.to(String(project.student)).emit('notification', {
+                title: status === 'completed' ? '✅ Milestone Approved' : '❌ Milestone Rejected',
+                body: status === 'completed'
+                    ? `Milestone "${milestone.title}" has been approved!`
+                    : `Milestone "${milestone.title}" needs revision.`,
+                type: status === 'completed' ? 'success' : 'warning',
+                receiverId: String(project.student)
+            });
+        }
 
         res.json(project);
     } catch (err) {
@@ -330,7 +376,7 @@ exports.evaluateMilestone = async (req, res) => {
 
 exports.updateProject = async (req, res) => {
     try {
-        const { title, idea, guidanceNeeded } = req.body;
+        const { title, idea, guidanceNeeded, keywords, mentorId } = req.body;
         const projectId = req.params.id;
         const studentId = req.user.id;
 
@@ -344,11 +390,17 @@ exports.updateProject = async (req, res) => {
             return res.status(401).json({ message: 'User not authorized' });
         }
 
+        const updateData = { title, idea, guidanceNeeded, keywords };
+        if (mentorId) {
+            updateData.mentor = mentorId;
+            updateData.status = 'pending';
+        }
+
         project = await Project.findByIdAndUpdate(
             projectId,
-            { $set: { title, idea, guidanceNeeded, keywords: req.body.keywords } },
+            { $set: updateData },
             { new: true }
-        );
+        ).populate('mentor', 'name email');
 
         res.json(project);
     } catch (err) {

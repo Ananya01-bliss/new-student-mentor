@@ -35,6 +35,16 @@ export class StudentProjectsComponent implements OnInit {
     selectedFile: File | null = null;
     submitting: boolean = false;
 
+    // Request Mentorship Modal
+    showRequestModal: boolean = false;
+    selectedMentor: any = null;
+    requestData = {
+        title: '',
+        idea: '',
+        guidanceNeeded: ''
+    };
+    isSending: boolean = false;
+
     constructor(private router: Router, private projectService: ProjectService, private route: ActivatedRoute, private notificationsService: NotificationsService) { }
 
     ngOnInit() {
@@ -42,45 +52,58 @@ export class StudentProjectsComponent implements OnInit {
     }
 
     fetchProject() {
-        this.projectService.getStudentProjects().subscribe({
-            next: (projects) => {
-                if (projects && projects.length > 0) {
-                    this.route.queryParams.subscribe(params => {
-                        const targetId = params['id'];
-                        let project;
+        this.route.queryParams.subscribe(params => {
+            const targetId = params['id'];
 
-                        if (targetId) {
-                            project = projects.find((p: any) => p._id === targetId);
-                        }
-                        // Removed auto-select default project logic to support "New Project" mode
+            // Clear alerts on every navigation
+            this.errorMessage = '';
+            this.successMessage = '';
 
-                        if (project) {
-                            this.projectTitle = project.title;
-                            this.aboutProject = project.idea;
-                            this.guidanceNeeded = project.guidanceNeeded;
-                            this.projectId = project._id;
-                            this.projectKeywords = project.keywords ? project.keywords.join(', ') : '';
-                            this.status = project.status;
-                            this.mentorName = project.mentor?.name || '';
-                            this.progress = project.progress || 0;
-                            this.milestones = project.milestones || [];
-                            // For existing projects, we DON'T show suggestions anymore as per user request
-                            this.suggestedMentors = [];
-                        } else {
-                            // New Project Mode (No ID or ID not found)
-                            this.projectTitle = '';
-                            this.aboutProject = '';
-                            this.guidanceNeeded = '';
-                            this.projectKeywords = '';
-                            this.projectId = null;
-                            this.suggestedMentors = [];
-                        }
-                    });
-                }
-            },
-            error: (err) => {
-                console.error('Error fetching project:', err);
+            if (!targetId) {
+                // New Project Mode
+                this.projectId = null;
+                this.status = 'draft';
+                this.projectTitle = '';
+                this.aboutProject = '';
+                this.guidanceNeeded = '';
+                this.projectKeywords = '';
+                this.milestones = [];
+                this.progress = 0;
+                this.suggestedMentors = [];
+                return;
             }
+
+            // Fetch projects
+            this.projectService.getStudentProjects().subscribe({
+                next: (projects) => {
+                    const project = projects.find((p: any) => p._id === targetId);
+                    if (project) {
+                        this.projectTitle = project.title;
+                        this.aboutProject = project.idea;
+                        this.guidanceNeeded = project.guidanceNeeded || '';
+                        this.projectId = project._id;
+                        this.projectKeywords = project.keywords ? project.keywords.join(', ') : '';
+                        this.status = project.status;
+                        this.mentorName = project.mentor?.name || '';
+                        this.progress = project.progress || 0;
+                        this.milestones = project.milestones || [];
+
+                        // Show suggestions ONLY if NOT approved
+                        if (this.status !== 'approved') {
+                            this.fetchSuggestions();
+                        } else {
+                            this.suggestedMentors = [];
+                        }
+                    } else {
+                        this.errorMessage = 'Project not found or access denied.';
+                        this.projectId = null;
+                    }
+                },
+                error: (err) => {
+                    console.error('Error loading projects:', err);
+                    this.errorMessage = 'Could not load project info.';
+                }
+            });
         });
     }
 
@@ -92,10 +115,22 @@ export class StudentProjectsComponent implements OnInit {
             keywords: this.projectKeywords.split(',').map(k => k.trim()).filter(k => k !== '')
         };
 
+        if (!projectData.title || !projectData.idea) {
+            this.errorMessage = 'Title and About Project are required.';
+            return;
+        }
+
         this.projectService.createProject(projectData).subscribe({
             next: (res) => {
                 this.successMessage = 'Project saved successfully!';
                 this.projectId = res._id;
+                this.status = res.status || 'draft';
+                // Add ID to URL without refreshing
+                this.router.navigate([], {
+                    relativeTo: this.route,
+                    queryParams: { id: res._id },
+                    queryParamsHandling: 'merge'
+                });
                 this.fetchSuggestions();
                 setTimeout(() => this.successMessage = '', 3000);
             },
@@ -118,7 +153,9 @@ export class StudentProjectsComponent implements OnInit {
         this.projectService.updateProject(this.projectId, projectData).subscribe({
             next: (res) => {
                 this.successMessage = 'Project updated successfully!';
-                this.fetchSuggestions();
+                if (this.status !== 'approved') {
+                    this.fetchSuggestions();
+                }
                 setTimeout(() => this.successMessage = '', 3000);
             },
             error: (err) => {
@@ -128,7 +165,7 @@ export class StudentProjectsComponent implements OnInit {
     }
 
     onKeywordsChange() {
-        if (this.projectId) return; // Only for new projects
+        if (this.status === 'approved') return;
 
         if (!this.projectKeywords.trim()) {
             this.suggestedMentors = [];
@@ -156,13 +193,86 @@ export class StudentProjectsComponent implements OnInit {
         });
     }
 
-    applyToMentor(mentorId: string) {
-        this.router.navigate(['/student/find-mentor'], {
-            queryParams: {
-                mentorId: mentorId,
-                autoOpen: 'true'
+    connectToMentor(mentor: any) {
+        if (!this.projectId) {
+            // New project: must save first
+            const projectData = {
+                title: this.projectTitle.trim(),
+                idea: this.aboutProject,
+                guidanceNeeded: this.guidanceNeeded,
+                keywords: this.projectKeywords.split(',').map(k => k.trim()).filter(k => k !== '')
+            };
+
+            if (!projectData.title || !projectData.idea) {
+                this.errorMessage = 'Please provide a title and idea for your project first.';
+                return;
+            }
+
+            this.projectService.createProject(projectData).subscribe({
+                next: (res) => {
+                    this.projectId = res._id;
+                    this.router.navigate([], {
+                        relativeTo: this.route,
+                        queryParams: { id: res._id },
+                        queryParamsHandling: 'merge'
+                    });
+                    this.selectedMentor = mentor;
+                    this.requestData = {
+                        title: this.projectTitle.trim(),
+                        idea: this.aboutProject,
+                        guidanceNeeded: this.guidanceNeeded
+                    };
+                    this.showRequestModal = true;
+                },
+                error: (err) => this.errorMessage = 'Error saving project before connection.'
+            });
+            return;
+        }
+
+        this.selectedMentor = mentor;
+        this.requestData = {
+            title: this.projectTitle.trim(),
+            idea: this.aboutProject,
+            guidanceNeeded: this.guidanceNeeded
+        };
+        this.showRequestModal = true;
+    }
+
+    closeRequestModal() {
+        this.showRequestModal = false;
+        this.selectedMentor = null;
+    }
+
+    sendRequest() {
+        if (!this.selectedMentor || !this.projectId) return;
+
+        this.isSending = true;
+        const projectData = {
+            title: this.requestData.title.trim(),
+            idea: this.requestData.idea,
+            guidanceNeeded: this.requestData.guidanceNeeded,
+            keywords: this.projectKeywords.split(',').map(k => k.trim()).filter(k => k !== ''),
+            mentorId: this.selectedMentor._id || this.selectedMentor.id
+        };
+
+        this.projectService.updateProject(this.projectId, projectData).subscribe({
+            next: (res) => {
+                this.successMessage = 'Mentorship request sent successfully!';
+                this.status = 'pending';
+                this.mentorName = res.mentor?.name || '';
+                this.suggestedMentors = [];
+                this.closeRequestModal();
+                setTimeout(() => this.successMessage = '', 3000);
+            },
+            error: (err) => {
+                this.errorMessage = err.error.message || 'Error sending mentorship request';
+                this.isSending = false;
             }
         });
+    }
+
+    applyToMentor(mentorId: string) {
+        this.connectToMentor({ _id: mentorId, id: mentorId });
     }
 
     // Milestone Methods

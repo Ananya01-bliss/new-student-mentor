@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { NotificationsService, NotificationItem } from '../../services/notifications.service';
 
 @Component({
@@ -13,8 +14,15 @@ export class NotificationsComponent implements OnInit {
   notifications: NotificationItem[] = [];
   filteredNotifications: NotificationItem[] = [];
   filterUnread: boolean = false;
+  currentUserId: string = '';
 
-  constructor(private notificationsService: NotificationsService) {}
+  constructor(
+    private notificationsService: NotificationsService,
+    public router: Router
+  ) {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    this.currentUserId = user._id || user.id;
+  }
 
   ngOnInit(): void {
     this.notificationsService.getNotifications().subscribe(list => {
@@ -26,6 +34,12 @@ export class NotificationsComponent implements OnInit {
   markRead(n: NotificationItem) {
     this.notificationsService.markAsRead(n.id);
     this.applyFilter();
+  }
+
+  goToChat(mentorId: string | undefined) {
+    if (mentorId) {
+      this.router.navigate(['/chat'], { queryParams: { mentorId: mentorId } });
+    }
   }
 
   clearAll() {

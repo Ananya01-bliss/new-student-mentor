@@ -44,7 +44,8 @@
                     class="avatar">
                 <div>
                     <h3>{{ selectedContact.name }}</h3>
-                    <span class="status" [class.pending]="!isApproved">{{ isApproved ? 'Online' : 'Awaiting approval...' }}</span>
+                    <span class="status" [class.pending]="!isApproved">{{ isApproved ? 'Online' : 'Awaiting approval...'
+                        }}</span>
                 </div>
             </div>
         </header>
@@ -54,7 +55,7 @@
             <i class="fas fa-exclamation-circle"></i>
             <span>{{ errorMessage }}</span>
         </div>
-        <div *ngIf="statusMessage && !isApproved" class="status-banner">
+        <div *ngIf="statusMessage && !isApproved && !errorMessage" class="status-banner">
             <i class="fas fa-clock"></i>
             <span>{{ statusMessage }}</span>
         </div>
@@ -70,9 +71,9 @@
 
         <footer class="chat-footer">
             <form (submit)="sendMessage(); $event.preventDefault()" [class.disabled]="!isApproved">
-                <input type="text" placeholder="{{ isApproved ? 'Type a message...' : 'Chat locked - awaiting mentor approval' }}" 
-                    [(ngModel)]="newMessage" name="messageInput"
-                    autocomplete="off" [disabled]="!isApproved">
+                <input type="text"
+                    placeholder="{{ isApproved ? 'Type a message...' : 'Chat locked - awaiting mentor approval' }}"
+                    [(ngModel)]="newMessage" name="messageInput" autocomplete="off" [disabled]="!isApproved">
                 <button type="submit" [disabled]="!newMessage.trim() || !isApproved">
                     <i class="fas fa-paper-plane"></i>
                 </button>

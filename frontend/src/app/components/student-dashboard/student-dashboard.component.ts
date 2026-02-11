@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { AuthService } from '../../services/auth.service';
 import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
@@ -24,15 +24,19 @@ export class StudentDashboardComponent implements OnInit, OnDestroy {
 
   constructor(
     private projectService: ProjectService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) { }
 
   ngOnInit() {
     // Subscribe to user changes to detect login/logout transitions
     this.userSubscription = this.authService.currentUser.subscribe(user => {
-      if (user && user._id) {
+      if (user && user.role === 'student') {
         this.fetchDashboardData();
         this.getUserName();
+      } else if (user && user.role === 'mentor') {
+        // Redirection safety check
+        this.router.navigate(['/mentor/dashboard']);
       }
     });
   }

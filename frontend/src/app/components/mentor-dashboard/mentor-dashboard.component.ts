@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ProjectService } from '../../services/project.service';
 import { AuthService } from '../../services/auth.service';
 
@@ -23,13 +23,20 @@ export class MentorDashboardComponent implements OnInit {
 
   constructor(
     private projectService: ProjectService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) { }
 
   ngOnInit() {
-    this.fetchDashboardData();
-    this.getUserName();
-    this.loadMentorConfig();
+    this.authService.currentUser.subscribe(user => {
+      if (user && user.role === 'mentor') {
+        this.fetchDashboardData();
+        this.getUserName();
+        this.loadMentorConfig();
+      } else if (user && user.role === 'student') {
+        this.router.navigate(['/student/dashboard']);
+      }
+    });
   }
 
   loadMentorConfig() {

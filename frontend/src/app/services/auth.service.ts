@@ -54,5 +54,9 @@ export class AuthService {
         const user = this.currentUserSubject.value;
         return user ? user.role : null;
     }
+
+    getCurrentUserValue(): any {
+        return this.currentUserSubject.value;
+    }
 }
 

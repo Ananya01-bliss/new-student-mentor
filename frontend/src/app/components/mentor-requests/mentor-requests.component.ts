@@ -78,12 +78,6 @@ export class MentorRequestsComponent implements OnInit {
             { headers: this.getHeaders() })
             .subscribe({
                 next: () => {
-                    const request = this.requests.find(r => r._id === projectId);
-                    if (request && status === 'approved') {
-                        this.notificationsService.notifyMentorApproval(request.student?.name || 'Student');
-                    } else if (request && status === 'rejected') {
-                        this.notificationsService.notifyMentorRejection(request.student?.name || 'Student');
-                    }
                     this.loadRequests();
                     this.loadHistory();
                 },

@@ -1,39 +1,43 @@
 <div class="notifications-page">
     <header class="notifications-header">
         <div class="header-left">
-            <h2>Notifications</h2>
-            <span class="unread-badge" *ngIf="getUnreadCount() > 0">{{ getUnreadCount() }}</span>
+            <button class="btn-back" (click)="router.navigate(['/student/dashboard'])">
+                <i class="fas fa-arrow-left"></i>
+            </button>
+            <div class="title-container">
+                <h2>Accepted invitations</h2>
+            </div>
         </div>
         <div class="actions">
-            <button class="btn-filter" [class.active]="filterUnread" (click)="toggleUnreadFilter()">
-                Unread Only
-            </button>
-            <button class="btn-secondary" (click)="clearAll()" [disabled]="notifications.length === 0">
-                Clear all
+            <button class="btn-clear" (click)="clearAll()" title="Clear all" *ngIf="notifications.length > 0">
+                <i class="fas fa-trash-alt"></i>
             </button>
         </div>
     </header>
 
     <section class="notifications-list">
-        <div *ngIf="filteredNotifications.length === 0" class="empty">
-            <div class="empty-icon">🔔</div>
-            <p>{{ notifications.length === 0 ? 'No notifications yet.' : 'No unread notifications.' }}</p>
-        </div>
-
         <div *ngFor="let n of filteredNotifications" class="notification-item" [class.unread]="!n.read">
-            <div class="left">
-                <div class="avatar">{{ getIcon(n) }}</div>
+            <div class="item-content">
+                <div class="avatar-container">
+                    <img [src]="'https://ui-avatars.com/api/?name=' + (n.mentorName || 'User') + '&background=random'"
+                        alt="avatar" class="avatar">
+                </div>
+                <div class="text-container">
+                    <span class="notification-title">{{ n.title }}</span>
+                    <p class="notification-body">{{ n.body }}</p>
+                    <span class="notification-time">{{ n.timestamp | date:'shortTime' }}</span>
+                </div>
             </div>
-            <div class="body">
-                <div class="title">{{ n.title }}</div>
-                <div class="message">{{ n.body }}</div>
-                <div class="meta">{{ n.timestamp | date:'short' }}</div>
-            </div>
-            <div class="right">
-                <button class="btn-primary" (click)="markRead(n)" [disabled]="n.read">
-                    {{ n.read ? '✓ Read' : 'Mark read' }}
+            <div class="item-actions">
+                <button class="chat-toggle" (click)="goToChat(n.mentorId); markRead(n)" title="Chat">
+                    <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
+        </div>
+
+        <div *ngIf="filteredNotifications.length === 0" class="empty-state">
+            <i class="fas fa-bell-slash"></i>
+            <p>No new invitations accepted yet.</p>
         </div>
     </section>
 </div>

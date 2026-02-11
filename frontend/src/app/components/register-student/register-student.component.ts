@@ -76,7 +76,8 @@ export class RegisterStudentComponent {
     'rocketmail.com',
     'outlook.com',
     'hotmail.com',
-    'icloud.com'
+    'icloud.com',
+    'rvce.edu.in'
   ];
 
   isValidEmail(email: string): boolean {

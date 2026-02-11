@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of } from 'rxjs';
+import { SocketService } from './socket.service';
+import { AuthService } from './auth.service';
 
 export interface NotificationItem {
     id: string;
@@ -8,14 +10,59 @@ export interface NotificationItem {
     timestamp: string; // ISO string
     read?: boolean;
     type?: 'info' | 'success' | 'warning' | 'error';
+    mentorId?: string;
+    mentorName?: string;
 }
 
 @Injectable({
     providedIn: 'root'
 })
 export class NotificationsService {
-    private storageKey = 'app_notifications_v1';
-    private subject = new BehaviorSubject<NotificationItem[]>(this.loadFromStorage());
+    private baseStorageKey = 'app_notifications_v1';
+    private subject = new BehaviorSubject<NotificationItem[]>([]);
+
+    private get storageKey(): string {
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const userId = user._id || user.id || 'guest';
+        return `${this.baseStorageKey}_${userId}`;
+    }
+
+    constructor(
+        private socketService: SocketService,
+        private authService: AuthService
+    ) {
+        // Subscribe to user changes to re-sync storage automatically
+        this.authService.currentUser.subscribe(() => {
+            this.syncWithStorage();
+        });
+
+        // We listen for socket notifications (usually from backend to current user)
+        this.socketService.on('notification').subscribe(data => {
+            if (data) {
+                // Verification: Only add if this notification belongs to the current user
+                const user = this.authService.getCurrentUserValue();
+                const currentUserId = user?._id || user?.id;
+
+                if (data.receiverId && currentUserId && String(data.receiverId) !== String(currentUserId)) {
+                    console.warn('Blocked notification meant for another user:', data.receiverId);
+                    return;
+                }
+
+                this.addNotification({
+                    title: data.title,
+                    body: data.body,
+                    type: data.type || 'info',
+                    mentorId: data.mentorId,
+                    mentorName: data.mentorName
+                });
+            }
+        });
+    }
+
+    // Call this after login/logout to refresh the subject with correct scoped data
+    syncWithStorage() {
+        this.subject.next(this.loadFromStorage());
+    }
 
     private loadFromStorage(): NotificationItem[] {
         try {
@@ -46,7 +93,9 @@ export class NotificationsService {
             body: item.body,
             timestamp: new Date().toISOString(),
             read: false,
-            type: item.type || 'info'
+            type: item.type || 'info',
+            mentorId: item.mentorId,
+            mentorName: item.mentorName
         };
         list.unshift(newItem);
         // Keep only last 50 notifications
@@ -74,19 +123,23 @@ export class NotificationsService {
     }
 
     // Quick notification helpers for common scenarios
-    notifyMentorApproval(mentorName: string) {
+    notifyMentorApproval(mentorName: string, mentorId: string) {
         this.addNotification({
             title: '✅ Mentor Approved',
             body: `${mentorName} has approved your mentorship request! You can now chat with them.`,
-            type: 'success'
+            type: 'success',
+            mentorId: mentorId,
+            mentorName: mentorName
         });
     }
 
-    notifyMentorRejection(mentorName: string) {
+    notifyMentorRejection(mentorName: string, mentorId: string) {
         this.addNotification({
             title: '❌ Mentor Request Rejected',
             body: `${mentorName} declined your mentorship request. You can try another mentor.`,
-            type: 'warning'
+            type: 'warning',
+            mentorId: mentorId,
+            mentorName: mentorName
         });
     }
 

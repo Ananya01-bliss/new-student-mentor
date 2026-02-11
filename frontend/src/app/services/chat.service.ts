@@ -3,29 +3,19 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, Subject } from 'rxjs';
 import { AuthService } from './auth.service';
 import { io, Socket } from 'socket.io-client';
+import { SocketService } from './socket.service';
 
 @Injectable({
     providedIn: 'root'
 })
 export class ChatService {
     private apiUrl = 'http://localhost:5000/api/messages';
-    private socket: Socket;
     private messageSubject = new Subject<any>();
 
-    constructor(private http: HttpClient, private authService: AuthService) {
-        this.socket = io('http://localhost:5000');
-
+    constructor(private http: HttpClient, private authService: AuthService, private socketService: SocketService) {
         // Listen for new messages from socket
-        this.socket.on('new_message', (message: any) => {
+        this.socketService.on('new_message').subscribe((message: any) => {
             this.messageSubject.next(message);
-        });
-
-        // Join room based on user ID when logged in
-        this.authService.currentUser.subscribe(user => {
-            const userId = user?._id || user?.id;
-            if (userId) {
-                this.socket.emit('join', userId);
-            }
         });
     }
 

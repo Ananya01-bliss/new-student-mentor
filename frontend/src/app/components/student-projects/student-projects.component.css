@@ -525,10 +525,11 @@
     font-weight: 600;
 }
 
-.apply-mini-btn {
+.connect-btn {
     width: 100%;
     padding: 0.8rem;
-    background: var(--student-primary);
+    background: #25D366;
+    /* Matching WhatsApp green style if preferred, or use student-primary */
     color: white;
     border: none;
     border-radius: 8px;
@@ -536,12 +537,24 @@
     font-weight: 700;
     cursor: pointer;
     transition: all 0.2s ease;
-    box-shadow: 0 4px 10px rgba(67, 97, 238, 0.2);
+    box-shadow: 0 4px 10px rgba(37, 211, 102, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
 }
 
-.apply-mini-btn:hover {
+.connect-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 15px rgba(67, 97, 238, 0.3);
+    box-shadow: 0 6px 15px rgba(37, 211, 102, 0.3);
+    background: #20BA5A;
+}
+
+.connect-btn:disabled {
+    background: var(--border-color);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 .mentor-hint {
@@ -551,4 +564,132 @@
     text-align: center;
     font-style: italic;
     opacity: 0.8;
+}
+
+/* Request Mentorship Modal Styles (Copied from FindMentor) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(8px);
+}
+
+.modal-card {
+    background: #2a1b12;
+    /* Matching the theme in the screenshot */
+    color: #e6ded3;
+    border-radius: 24px;
+    width: 95%;
+    max-width: 650px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 2.5rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(230, 222, 211, 0.1);
+    animation: modalSlideUp 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    position: relative;
+}
+
+@keyframes modalSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px) scale(0.98);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.modal-header h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    margin: 0;
+    color: #ffffff;
+    letter-spacing: -0.02em;
+}
+
+.btn-close {
+    background: transparent;
+    border: none;
+    font-size: 2.5rem;
+    color: rgba(230, 222, 211, 0.5);
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    margin-top: -10px;
+    transition: color 0.2s;
+}
+
+.btn-close:hover {
+    color: #ffffff;
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 2.5rem;
+}
+
+.modal-body .form-group {
+    margin-bottom: 0;
+}
+
+.modal-body .form-group label {
+    display: block;
+    margin-bottom: 0.75rem;
+    font-weight: 700;
+    font-size: 1rem;
+    color: #ffffff;
+}
+
+.modal-body .form-group input,
+.modal-body .form-group textarea {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(230, 222, 211, 0.2);
+    border-radius: 12px;
+    color: #ffffff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    margin-bottom: 0px !important;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1.25rem;
+}
+
+.btn-secondary {
+    background: rgba(230, 222, 211, 0.05);
+    color: #e6ded3;
+    border: 1px solid rgba(230, 222, 211, 0.2);
+    padding: 0.85rem 2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background: #e6ded3;
+    color: #2a1b12;
+    border: none;
+    padding: 0.85rem 2rem;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
 }

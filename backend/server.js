@@ -53,6 +53,14 @@ io.on('connection', (socket) => {
     users[uid] = socket.id;
   });
 
+  socket.on('leave', (userId) => {
+    const uid = String(userId);
+    socket.leave(uid);
+    if (users[uid] === socket.id) {
+      delete users[uid];
+    }
+  });
+
   socket.on('typing', ({ userId, otherUserId }) => {
     if (otherUserId) socket.to(String(otherUserId)).emit('typing', { userId });
   });

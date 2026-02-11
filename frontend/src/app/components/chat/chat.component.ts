@@ -40,8 +40,13 @@ export class ChatComponent implements OnInit, AfterViewChecked {
 
       const mentorId = this.route.snapshot.queryParamMap.get('mentorId');
       const projectId = this.route.snapshot.queryParamMap.get('projectId');
-      this.checkMentorshipApproval(mentorId, projectId);
-      this.loadConversations(mentorId);
+
+      if (this.currentUser?.role === 'mentor') {
+        this.isApproved = true;
+        this.loadConversations(mentorId);
+      } else {
+        this.checkMentorshipApproval(mentorId, projectId);
+      }
     });
 
     // Listen for real-time messages
@@ -85,6 +90,7 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   checkMentorshipApproval(mentorId: string | null, projectId?: string | null): void {
     if (!mentorId) {
       this.isApproved = true; // Allow existing conversations
+      this.loadConversations();
       return;
     }
 
@@ -108,11 +114,13 @@ export class ChatComponent implements OnInit, AfterViewChecked {
               this.statusMessage = 'Waiting for mentor approval...';
             }
           }
+          this.loadConversations(mentorId);
         },
         error: (err) => {
           console.error('Error checking mentorship:', err);
           this.isApproved = false;
           this.errorMessage = 'Error verifying mentorship status.';
+          this.loadConversations(mentorId);
         }
       });
       return;
@@ -125,16 +133,20 @@ export class ChatComponent implements OnInit, AfterViewChecked {
         if (approvedProject) {
           this.isApproved = true;
           this.errorMessage = '';
+          this.statusMessage = '';
         } else {
           this.isApproved = false;
           this.errorMessage = 'You can only chat with mentors after they approve your mentorship request.';
           this.statusMessage = 'Waiting for mentor approval...';
         }
+        this.loadConversations(mentorId);
       },
       error: (err) => {
         console.error('Error checking mentorship:', err);
         this.isApproved = false;
+        this.statusMessage = '';
         this.errorMessage = 'Error verifying mentorship status.';
+        this.loadConversations(mentorId);
       }
     });
   }
@@ -144,30 +156,44 @@ export class ChatComponent implements OnInit, AfterViewChecked {
   }
 
   loadConversations(highlightId: string | null = null): void {
-    this.chatService.getConversations().subscribe(contacts => {
-      this.contacts = contacts;
-
-      if (highlightId) {
-        const contact = this.contacts.find(c => c._id === highlightId);
-        if (contact) {
-          this.selectContact(contact);
-        } else {
-          // If not in conversations yet and not approved, don't proceed
-          if (!this.isApproved) {
-            return;
-          }
-          this.chatService.getUserById(highlightId).subscribe(user => {
-            if (user) {
-              // Add to local contacts list temporarily
-              this.contacts.unshift(user);
-              this.selectContact(user);
-            }
-          });
+    this.chatService.getConversations().subscribe({
+      next: (contacts) => {
+        this.contacts = contacts;
+        this.processSelection(highlightId);
+      },
+      error: (err) => {
+        console.error('Error loading conversations:', err);
+        if (highlightId) {
+          this.processSelection(highlightId);
         }
-      } else if (this.contacts.length > 0 && !this.selectedContact) {
-        this.selectContact(this.contacts[0]);
       }
     });
+  }
+
+  private processSelection(highlightId: string | null): void {
+    if (highlightId) {
+      const contact = this.contacts.find(c => c._id === highlightId || c.id === highlightId);
+      if (contact) {
+        if (!this.selectedContact || (this.selectedContact._id !== contact._id && this.selectedContact.id !== contact._id)) {
+          this.selectContact(contact);
+        }
+      } else if (this.isApproved) {
+        this.chatService.getUserById(highlightId).subscribe(user => {
+          if (user) {
+            const newUser = { ...user, _id: user._id || user.id, id: user.id || user._id };
+            const exists = this.contacts.find(c => c._id === newUser._id || c.id === newUser._id);
+            if (!exists) {
+              this.contacts.unshift(newUser);
+              this.selectContact(newUser);
+            } else {
+              this.selectContact(exists);
+            }
+          }
+        });
+      }
+    } else if (this.contacts.length > 0 && !this.selectedContact) {
+      this.selectContact(this.contacts[0]);
+    }
   }
 
   loadMessages(contactId: string): void {

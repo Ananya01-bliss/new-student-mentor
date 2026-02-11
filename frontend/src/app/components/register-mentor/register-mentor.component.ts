@@ -82,7 +82,8 @@ export class RegisterMentorComponent {
     'rocketmail.com',
     'outlook.com',
     'hotmail.com',
-    'icloud.com'
+    'icloud.com',
+    'rvce.edu.in'
   ];
   isValidEmail(email: string): boolean {
     // basic email format check
